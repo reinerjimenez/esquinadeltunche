@@ -39,6 +39,7 @@ const searchableDishFields = new Map(
       [
         normalize(dish.name),
         ...(dish.description ? [normalize(dish.description)] : []),
+        ...(dish.detail ? [normalize(dish.detail)] : []),
         ...(dish.variants?.map((variant) => normalize(variant.name)) ?? []),
       ],
     ] as const)

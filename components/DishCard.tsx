@@ -108,7 +108,11 @@ export default function DishCard({ dish, categoryId, onClick }: DishCardProps) {
         <div className="dish-photo-copy">
           {dish.tags?.[0] && <span className={`tag tag-${dish.tags[0]}`}>{TAG_LABEL[dish.tags[0]]}</span>}
           <h3>{dish.name}</h3>
-          {dish.description && <p className="line-clamp-1">{dish.description}</p>}
+          {(dish.detail || dish.description) && (
+            <p className="line-clamp-1">
+              {dish.detail}{dish.detail && dish.description ? " — " : ""}{dish.description}
+            </p>
+          )}
           <div className="dish-photo-action">
             <strong><DishPrice dish={dish} /></strong>
             {controls}
@@ -131,7 +135,11 @@ export default function DishCard({ dish, categoryId, onClick }: DishCardProps) {
           <strong><DishPrice dish={dish} /></strong>
         </div>
         <div className="dish-row-meta">
-          {dish.description && <p className="line-clamp-1">{dish.description}</p>}
+          {(dish.detail || dish.description) && (
+            <p className="line-clamp-1">
+              {dish.detail}{dish.detail && dish.description ? " — " : ""}{dish.description}
+            </p>
+          )}
           {dish.tags?.[0] && <span className={`tag tag-${dish.tags[0]}`}>{TAG_LABEL[dish.tags[0]]}</span>}
         </div>
       </div>

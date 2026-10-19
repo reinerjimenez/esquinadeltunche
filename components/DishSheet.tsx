@@ -54,17 +54,35 @@ export default function DishSheet({ dish, categoryId, onClose }: DishSheetProps)
   const unitPrice = selectedVariant?.price ?? dish.price;
 
   const toggleChoice = (optionId: string, choice: string, max: number) => {
-    setSelectedOptions((prev) => {
-      const current = prev[optionId] || [];
-      if (current.includes(choice)) {
-        return { ...prev, [optionId]: current.filter((c) => c !== choice) };
-      }
-      if (max === 1) {
-        return { ...prev, [optionId]: [choice] };
-      }
-      if (current.length >= max) return prev;
-      return { ...prev, [optionId]: [...current, choice] };
-    });
+    const current = selectedOptions[optionId] || [];
+
+    if (current.includes(choice)) {
+      setSelectedOptions((prev) => ({
+        ...prev,
+        [optionId]: current.filter((selectedChoice) => selectedChoice !== choice),
+      }));
+      setErrors((prev) => ({ ...prev, [optionId]: "" }));
+      return;
+    }
+
+    if (max === 1) {
+      setSelectedOptions((prev) => ({ ...prev, [optionId]: [choice] }));
+      setErrors((prev) => ({ ...prev, [optionId]: "" }));
+      return;
+    }
+
+    if (current.length >= max) {
+      setErrors((prev) => ({
+        ...prev,
+        [optionId]: `Puedes seleccionar como máximo ${max} opción${max > 1 ? "es" : ""}.`,
+      }));
+      return;
+    }
+
+    setSelectedOptions((prev) => ({
+      ...prev,
+      [optionId]: [...current, choice],
+    }));
     setErrors((prev) => ({ ...prev, [optionId]: "" }));
   };
 
@@ -74,8 +92,14 @@ export default function DishSheet({ dish, categoryId, onClose }: DishSheetProps)
     let valid = true;
     dish.options!.forEach((opt) => {
       const selected = selectedOptions[opt.id] || [];
-      if (selected.length < opt.min) {
-        newErrors[opt.id] = `Debes elegir ${opt.min === opt.max ? opt.min : `entre ${opt.min} y ${opt.max}`} opción${opt.min > 1 ? "es" : ""}`;
+      const hasValidSelection = opt.min === opt.max
+        ? selected.length === opt.min
+        : selected.length >= opt.min && selected.length <= opt.max;
+
+      if (!hasValidSelection) {
+        newErrors[opt.id] = opt.min === opt.max
+          ? `Debes elegir exactamente ${opt.min} opción${opt.min > 1 ? "es" : ""}.`
+          : `Debes elegir entre ${opt.min} y ${opt.max} opciones.`;
         valid = false;
       }
     });
@@ -177,7 +201,14 @@ export default function DishSheet({ dish, categoryId, onClose }: DishSheetProps)
                   </span>
                 </div>
               )}
-              <h2 className="font-display text-tunche-cream text-xl font-bold mb-2">{dish.name}</h2>
+              <h2 className={`font-display text-tunche-cream text-xl font-bold mb-2 ${dish.id === "poke-bowl" ? "uppercase" : ""}`}>
+                {dish.name}
+              </h2>
+              {dish.detail && (
+                <p className="text-tunche-gold text-xs font-semibold uppercase tracking-wider mb-2">
+                  {dish.detail}
+                </p>
+              )}
               {dish.description && (
                 <p className="text-tunche-muted text-sm leading-relaxed">{dish.description}</p>
               )}
@@ -205,40 +236,62 @@ export default function DishSheet({ dish, categoryId, onClose }: DishSheetProps)
             ) : null}
 
             {/* Options */}
-            {dish.options?.map((opt) => (
-              <div key={opt.id}>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-tunche-cream text-sm font-semibold">{opt.label}</label>
-                  <span className="text-tunche-muted text-xs">
-                    {opt.min === opt.max ? `Elige ${opt.min}` : `${opt.min}–${opt.max}`}
-                    {opt.min > 0 ? " · Obligatorio" : " · Opcional"}
-                  </span>
+            {dish.options?.map((opt) => {
+              const selectedCount = (selectedOptions[opt.id] || []).length;
+              const showsPokeProgress = dish.id === "poke-bowl" && opt.id === "toppings";
+
+              return (
+                <div
+                  key={opt.id}
+                  className={dish.id === "poke-bowl" ? "border-t border-tunche-border pt-4" : ""}
+                >
+                  <div className="flex flex-col gap-1 mb-3 sm:flex-row sm:items-start sm:justify-between">
+                    <p id={`option-${opt.id}-label`} className="text-tunche-cream text-sm font-semibold">
+                      {opt.label}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:flex-col sm:items-end">
+                      <span className="text-tunche-muted">
+                        {opt.min === opt.max ? `Elige ${opt.min}` : `${opt.min}–${opt.max}`}
+                        {opt.min > 0 ? " · Obligatorio" : " · Opcional"}
+                      </span>
+                      {showsPokeProgress && (
+                        <span className="text-tunche-gold font-semibold" aria-live="polite">
+                          Seleccionados: {selectedCount} de {opt.max}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div
+                    className="flex flex-wrap gap-2"
+                    role="group"
+                    aria-labelledby={`option-${opt.id}-label`}
+                  >
+                    {opt.choices.map((choice) => {
+                      const selected = (selectedOptions[opt.id] || []).includes(choice);
+                      return (
+                        <button
+                          type="button"
+                          key={choice}
+                          onClick={() => toggleChoice(opt.id, choice, opt.max)}
+                          className={`max-w-full min-h-11 whitespace-normal rounded-lg border px-3 py-2 text-left text-sm font-medium leading-snug transition-colors ${
+                            selected
+                              ? "bg-tunche-gold text-tunche-dark border-tunche-gold"
+                              : "bg-tunche-surface-2 text-tunche-cream border-tunche-border hover:border-tunche-gold/40"
+                          }`}
+                          aria-pressed={selected}
+                          aria-label={`${choice}${selected ? ", seleccionado" : ""}`}
+                        >
+                          {choice}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {errors[opt.id] && (
+                    <p className="text-red-400 text-xs mt-1" role="alert">{errors[opt.id]}</p>
+                  )}
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {opt.choices.map((choice) => {
-                    const selected = (selectedOptions[opt.id] || []).includes(choice);
-                    return (
-                      <button
-                        key={choice}
-                        onClick={() => toggleChoice(opt.id, choice, opt.max)}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all min-h-[36px] ${
-                          selected
-                            ? "bg-tunche-gold text-tunche-dark border-tunche-gold"
-                            : "bg-tunche-surface-2 text-tunche-cream border-tunche-border hover:border-tunche-gold/40"
-                        }`}
-                        aria-pressed={selected}
-                        aria-label={`${choice}${selected ? ", seleccionado" : ""}`}
-                      >
-                        {choice}
-                      </button>
-                    );
-                  })}
-                </div>
-                {errors[opt.id] && (
-                  <p className="text-red-400 text-xs mt-1" role="alert">{errors[opt.id]}</p>
-                )}
-              </div>
-            ))}
+              );
+            })}
 
             {/* Note */}
             <div>
@@ -257,7 +310,11 @@ export default function DishSheet({ dish, categoryId, onClose }: DishSheetProps)
             </div>
 
             {/* Quantity + Add button */}
-            <div className="flex items-center gap-4">
+            <div className={`flex items-center gap-4 ${
+              dish.id === "poke-bowl"
+                ? "sticky bottom-0 z-10 -mx-5 -mb-6 border-t border-tunche-border bg-tunche-surface/95 px-5 pt-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] backdrop-blur"
+                : ""
+            }`}>
               <div
                 className="qty-stepper"
                 aria-label="Cantidad"
