@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 /**
  * Parche de compatibilidad Node.js v26 / Windows — EISDIR en readlink
  *
