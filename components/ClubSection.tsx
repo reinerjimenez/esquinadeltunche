@@ -1,6 +1,7 @@
 "use client";
 
-import { Sparkles, Ticket, Award } from "lucide-react";
+import { useState, useId } from "react";
+import { Sparkles, Ticket, Award, Share2 } from "lucide-react";
 import { config } from "@/data/config";
 import PromotionsModule from "./club/PromotionsModule";
 import CouponsModule from "./club/CouponsModule";
@@ -11,8 +12,39 @@ type ClubSectionProps = {
   onOpenMenu?: () => void;
 };
 
+type TabId = "promotions" | "coupons" | "loyalty" | "share";
+
+const TABS: { id: TabId; icon: React.ReactNode; label: string; shortLabel: string }[] = [
+  {
+    id: "promotions",
+    icon: <Sparkles size={16} aria-hidden="true" />,
+    label: "Promociones",
+    shortLabel: "Promos",
+  },
+  {
+    id: "coupons",
+    icon: <Ticket size={16} aria-hidden="true" />,
+    label: "Cupones",
+    shortLabel: "Cupones",
+  },
+  {
+    id: "loyalty",
+    icon: <Award size={16} aria-hidden="true" />,
+    label: "Fidelización",
+    shortLabel: "Sellos",
+  },
+  {
+    id: "share",
+    icon: <Share2 size={16} aria-hidden="true" />,
+    label: "Compartir",
+    shortLabel: "Compartir",
+  },
+];
+
 export default function ClubSection({ onOpenMenu }: ClubSectionProps) {
   const { club } = config;
+  const [activeTab, setActiveTab] = useState<TabId>("promotions");
+  const tablistId = useId();
 
   if (!club.enabled) return null;
 
@@ -20,66 +52,81 @@ export default function ClubSection({ onOpenMenu }: ClubSectionProps) {
     <section
       id="club-tunche"
       aria-labelledby="heading-club-tunche"
-      className="club-section my-12 px-4 sm:px-6 max-w-4xl mx-auto"
+      className="club-section"
     >
-      {/* Encabezado principal del Club */}
-      <div className="section-divider mb-4">
-        <div>
-          <p className="text-tunche-gold text-xs font-bold uppercase tracking-[0.2em]">
-            Fidelización y Beneficios
-          </p>
-          <h2
-            id="heading-club-tunche"
-            className="font-display text-2xl sm:text-3xl font-extrabold text-tunche-cream mt-1"
-          >
-            {club.title}
-          </h2>
-        </div>
+      {/* ── Header ── */}
+      <div className="club-header">
+        <p className="club-eyebrow">Fidelización · Beneficios</p>
+        <h2 id="heading-club-tunche" className="club-title">
+          {club.title}
+        </h2>
+        <p className="club-intro">{club.intro}</p>
       </div>
 
-      <p className="text-tunche-muted text-sm sm:text-base leading-relaxed mb-8 max-w-2xl">
-        {club.intro}
-      </p>
+      {/* ── Tab Bar ── */}
+      <div className="club-tabbar" role="tablist" aria-label="Secciones del Club del Tunche" id={tablistId}>
+        {TABS.map((tab) => (
+          <button
+            key={tab.id}
+            role="tab"
+            id={`tab-${tab.id}`}
+            aria-selected={activeTab === tab.id}
+            aria-controls={`panel-${tab.id}`}
+            onClick={() => setActiveTab(tab.id)}
+            className={`club-tab${activeTab === tab.id ? " active" : ""}`}
+          >
+            {tab.icon}
+            <span className="club-tab-label">{tab.label}</span>
+            <span className="club-tab-short">{tab.shortLabel}</span>
+          </button>
+        ))}
+      </div>
 
-      {/* Grid de módulos del Club */}
-      <div className="flex flex-col gap-8">
-        {/* 1. Promociones */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles size={16} className="text-tunche-gold" aria-hidden="true" />
-            <h3 className="font-display text-tunche-cream text-base font-bold">
-              Promociones del Restaurante
-            </h3>
+      {/* ── Panels ── */}
+      <div className="club-panel-wrapper">
+        {activeTab === "promotions" && (
+          <div
+            role="tabpanel"
+            id="panel-promotions"
+            aria-labelledby="tab-promotions"
+            className="club-panel"
+          >
+            <PromotionsModule promotions={club.promotions} onOpenMenu={onOpenMenu} />
           </div>
-          <PromotionsModule promotions={club.promotions} onOpenMenu={onOpenMenu} />
-        </div>
+        )}
 
-        {/* 2. Cupones de Beneficio */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <Ticket size={16} className="text-tunche-gold" aria-hidden="true" />
-            <h3 className="font-display text-tunche-cream text-base font-bold">
-              Cupones para tu Próxima Visita
-            </h3>
+        {activeTab === "coupons" && (
+          <div
+            role="tabpanel"
+            id="panel-coupons"
+            aria-labelledby="tab-coupons"
+            className="club-panel"
+          >
+            <CouponsModule coupons={club.coupons} />
           </div>
-          <CouponsModule coupons={club.coupons} />
-        </div>
+        )}
 
-        {/* 3. Tarjeta de Visitas (Fidelización) */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <Award size={16} className="text-tunche-gold" aria-hidden="true" />
-            <h3 className="font-display text-tunche-cream text-base font-bold">
-              Tarjeta de Visitas Digital
-            </h3>
+        {activeTab === "loyalty" && (
+          <div
+            role="tabpanel"
+            id="panel-loyalty"
+            aria-labelledby="tab-loyalty"
+            className="club-panel"
+          >
+            <LoyaltyCardModule config={club.loyaltyCard} />
           </div>
-          <LoyaltyCardModule config={club.loyaltyCard} />
-        </div>
+        )}
 
-        {/* 4. Compartir la Carta */}
-        <div>
-          <ShareModule />
-        </div>
+        {activeTab === "share" && (
+          <div
+            role="tabpanel"
+            id="panel-share"
+            aria-labelledby="tab-share"
+            className="club-panel"
+          >
+            <ShareModule />
+          </div>
+        )}
       </div>
     </section>
   );
