@@ -25,6 +25,7 @@ export type CartOrder = {
   tableNumber: string;
   customerName: string;
   comment: string;
+  promoCode?: string;
 };
 
 function buildOptionsSuffix(options: CartItemOption[]): string {
@@ -68,8 +69,15 @@ export function buildWhatsAppMessage(order: CartOrder): string {
     }
   }
 
+  // Código promocional o cupón del Club del Tunche (si fue aplicado)
+  if (order.promoCode && order.promoCode.trim()) {
+    lines.push("");
+    lines.push(`🎟️ *Cupón / Código Club:* ${order.promoCode.trim().toUpperCase()}`);
+    lines.push(`   _(Beneficio y aplicación sujetos a confirmación y disponibilidad del restaurante)_`);
+  }
+
   lines.push("");
-  lines.push(`*Total: ${config.currency} ${total.toFixed(2)}*`);
+  lines.push(`*Total estimado: ${config.currency} ${total.toFixed(2)}*`);
 
   if (order.comment.trim()) {
     lines.push("");
@@ -84,6 +92,22 @@ export function buildWhatsAppMessage(order: CartOrder): string {
 
 export function getWhatsAppUrl(message: string): string {
   return `https://wa.me/${config.whatsapp}?text=${encodeURIComponent(message)}`;
+}
+
+export function buildCouponInquiryUrl(code: string, couponName: string): string {
+  const message = `¡Hola, La Esquina del Tunche! 👋\nQuiero consultar sobre el cupón *${code}* (${couponName}) del Club del Tunche.\n¿Podrían confirmarme las condiciones y atenciones disponibles para mi visita?`;
+  return getWhatsAppUrl(message);
+}
+
+export function buildLoyaltyInquiryUrl(visits: number, target: number): string {
+  const message = `¡Hola, La Esquina del Tunche! 👋\nHe completado ${visits} de ${target} visitas en mi tarjeta de fidelización del Club del Tunche.\n¿Podrían informarme cómo validar mis sellos y conocer las recompensas disponibles?`;
+  return getWhatsAppUrl(message);
+}
+
+export function buildPromoInquiryUrl(promoTitle: string, promoCode?: string): string {
+  const codePart = promoCode ? ` con código *${promoCode}*` : "";
+  const message = `¡Hola, La Esquina del Tunche! 👋\nQuiero consultar la disponibilidad de la promoción: *${promoTitle}*${codePart}.\n¿Tienen disponibilidad hoy?`;
+  return getWhatsAppUrl(message);
 }
 
 export function formatPrice(price: number): string {

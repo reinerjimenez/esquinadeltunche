@@ -11,6 +11,7 @@ import MenuSection from "@/components/MenuSection";
 import DishSheet from "@/components/DishSheet";
 import CartButton from "@/components/CartButton";
 import CartSheet from "@/components/CartSheet";
+import ClubSection from "@/components/ClubSection";
 import MapSection from "@/components/MapSection";
 import Footer from "@/components/Footer";
 import Toast from "@/components/Toast";
@@ -187,6 +188,11 @@ export default function HomePage() {
                 <strong className="text-tunche-cream">&ldquo;{searchQuery}&rdquo;</strong>
               </p>
             </div>
+          )}
+
+          {/* Club del Tunche — Fidelización, promociones, cupones y compartir */}
+          {!searchQuery && (
+            <ClubSection onOpenMenu={() => scrollToCategory(menu[0]?.id ?? "")} />
           )}
 
           {/* Map section */}

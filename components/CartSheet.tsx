@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { X, Trash2, ShoppingBag, Send, MapPin, Hash } from "lucide-react";
+import { X, Trash2, ShoppingBag, Send, MapPin, Hash, Ticket, Check } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { buildWhatsAppMessage, getWhatsAppUrl, formatPrice } from "@/lib/whatsapp";
 import { config } from "@/data/config";
 import WhatsAppIcon from "@/components/WhatsAppIcon";
+import { trackEvent } from "@/lib/analytics";
 
 export default function CartSheet() {
   const {
@@ -18,6 +19,8 @@ export default function CartSheet() {
     setTable,
     setName,
     setComment,
+    setPromoCode,
+    showToast,
     clearCart,
     closeCart,
     totalItems,
@@ -25,6 +28,7 @@ export default function CartSheet() {
     isValid,
   } = useCart();
 
+  const [promoInput, setPromoInput] = useState("");
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [sent, setSent] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -45,6 +49,12 @@ export default function CartSheet() {
 
   const handleSend = () => {
     if (!validate()) return;
+    trackEvent("whatsapp_click", {
+      context: "cart",
+      totalPrice,
+      totalItems,
+      promoCode: state.promoCode || undefined,
+    });
     const message = buildWhatsAppMessage({ ...state, orderType: state.orderType! });
     const url = getWhatsAppUrl(message);
     window.open(url, "_blank", "noopener,noreferrer");
@@ -288,9 +298,69 @@ export default function CartSheet() {
                   />
                 </div>
 
+                {/* Club del Tunche: Código o cupón promocional */}
+                <div className="rounded-xl border border-tunche-border bg-tunche-surface-2/60 p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-tunche-gold">
+                      <Ticket size={14} aria-hidden="true" />
+                      <span>Club del Tunche · Cupón</span>
+                    </div>
+                    {state.promoCode && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPromoCode("");
+                          showToast("Cupón retirado");
+                        }}
+                        className="text-xs text-tunche-muted hover:text-red-400 transition-colors"
+                        aria-label="Quitar código promocional"
+                      >
+                        Quitar
+                      </button>
+                    )}
+                  </div>
+
+                  {state.promoCode ? (
+                    <div className="flex items-center justify-between rounded-lg border border-tunche-gold/40 bg-tunche-gold/10 px-3 py-2">
+                      <div>
+                        <span className="font-mono text-xs font-bold text-tunche-gold">{state.promoCode}</span>
+                        <p className="text-[11px] text-tunche-muted mt-0.5">
+                          Se incluirá en tu pedido para confirmación en el restaurante.
+                        </p>
+                      </div>
+                      <Check size={16} className="text-tunche-gold flex-shrink-0 ml-2" />
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Ej: CLUBTUNCHE"
+                        value={promoInput}
+                        onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                        className="tunche-input font-mono uppercase text-xs !min-h-[38px] !py-1.5 !px-3"
+                        aria-label="Código promocional o cupón"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const clean = promoInput.trim().toUpperCase();
+                          if (!clean) return;
+                          setPromoCode(clean);
+                          setPromoInput("");
+                          showToast(`Cupón ${clean} agregado`);
+                          trackEvent("coupon_apply_cart", { couponCode: clean });
+                        }}
+                        className="btn-outline-gold !min-h-[38px] !py-1.5 !px-3 text-xs flex-shrink-0"
+                      >
+                        Aplicar
+                      </button>
+                    </div>
+                  )}
+                </div>
+
                 {/* Total */}
                 <div className="flex items-center justify-between py-3 border-t border-tunche-border">
-                  <span className="text-tunche-cream font-semibold">Total</span>
+                  <span className="text-tunche-cream font-semibold">Total estimado</span>
                   <span className="font-display text-tunche-gold text-xl font-bold">{formatPrice(totalPrice)}</span>
                 </div>
               </>

@@ -28,6 +28,7 @@ const initialState: CartState = {
   tableNumber: "",
   customerName: "",
   comment: "",
+  promoCode: "",
   isCartOpen: false,
   toastMessage: null,
 };
@@ -44,6 +45,7 @@ type CartAction =
   | { type: "SET_TABLE"; tableNumber: string }
   | { type: "SET_NAME"; customerName: string }
   | { type: "SET_COMMENT"; comment: string }
+  | { type: "SET_PROMO_CODE"; promoCode: string }
   | { type: "CLEAR_CART" }
   | { type: "OPEN_CART" }
   | { type: "CLOSE_CART" }
@@ -96,6 +98,8 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       return { ...state, customerName: action.customerName };
     case "SET_COMMENT":
       return { ...state, comment: action.comment };
+    case "SET_PROMO_CODE":
+      return { ...state, promoCode: action.promoCode };
     case "CLEAR_CART":
       return { ...initialState };
     case "OPEN_CART":
@@ -124,6 +128,7 @@ type CartContextType = {
   setTable: (tableNumber: string) => void;
   setName: (name: string) => void;
   setComment: (comment: string) => void;
+  setPromoCode: (promoCode: string) => void;
   clearCart: () => void;
   openCart: () => void;
   closeCart: () => void;
@@ -165,6 +170,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         tableNumber: state.tableNumber,
         customerName: state.customerName,
         comment: state.comment,
+        promoCode: state.promoCode,
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(persistable));
     } catch {
@@ -206,6 +212,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const setTable = useCallback((tableNumber: string) => dispatch({ type: "SET_TABLE", tableNumber }), []);
   const setName = useCallback((customerName: string) => dispatch({ type: "SET_NAME", customerName }), []);
   const setComment = useCallback((comment: string) => dispatch({ type: "SET_COMMENT", comment }), []);
+  const setPromoCode = useCallback((promoCode: string) => dispatch({ type: "SET_PROMO_CODE", promoCode }), []);
   const clearCart = useCallback(() => dispatch({ type: "CLEAR_CART" }), []);
   const openCart = useCallback(() => dispatch({ type: "OPEN_CART" }), []);
   const closeCart = useCallback(() => dispatch({ type: "CLOSE_CART" }), []);
@@ -225,6 +232,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setTable,
         setName,
         setComment,
+        setPromoCode,
         clearCart,
         openCart,
         closeCart,

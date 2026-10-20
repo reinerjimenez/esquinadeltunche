@@ -23,7 +23,6 @@ type DishImageProps = {
     | "jugos"
     | "bebidas"
     | "frozen"
-    | "fresh-tea"
     | "frappes";
 };
 
@@ -40,7 +39,6 @@ const categoryGradients: Record<string, string> = {
   "jugos":            "from-emerald-900/80 to-lime-900/60",
   "bebidas":          "from-purple-900/80 to-indigo-900/60",
   "frozen":           "from-cyan-900/80 to-blue-900/60",
-  "fresh-tea":        "from-green-900/80 to-teal-900/60",
   "frappes":          "from-amber-950/80 to-stone-900/60",
 };
 
@@ -57,7 +55,6 @@ const categoryIcons: Record<string, string> = {
   "jugos":            "🥤",
   "bebidas":          "🍹",
   "frozen":           "🍧",
-  "fresh-tea":        "🍃",
   "frappes":          "☕",
 };
 

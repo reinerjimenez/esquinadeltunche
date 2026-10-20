@@ -1009,59 +1009,7 @@ export const menu: Category[] = [
     ],
   },
 
-  // ─── 13. FRESH TEA ────────────────────────────────────────────────────────
-  {
-    id: "fresh-tea",
-    name: "Fresh Tea",
-    icon: "🍃",
-    subtitle: "Tés fríos e infusiones refrescantes",
-    dishes: [
-      {
-        id: "fresh-tea-negro-clasico",
-        name: "Negro Clásico",
-        description: "Té negro frío tradicional.",
-        price: 8,
-      },
-      {
-        id: "fresh-tea-pina-jengibre",
-        name: "Piña y Jengibre",
-        description: "Té frío con infusión de piña y jengibre.",
-        price: 9,
-      },
-      {
-        id: "fresh-tea-maracuya",
-        name: "Maracuyá",
-        description: "Té frío con pulpa natural de maracuyá.",
-        price: 9,
-      },
-      {
-        id: "fresh-tea-fresa",
-        name: "Fresa",
-        description: "Té frío con esencia y trozos de fresa.",
-        price: 10,
-      },
-      {
-        id: "fresh-tea-limon-miel",
-        name: "Limón y Miel",
-        description: "Té frío con jugo de limón y miel de abeja.",
-        price: 10,
-      },
-      {
-        id: "fresh-tea-menta-jengibre",
-        name: "Menta y Jengibre",
-        description: "Té frío con hojas de menta y jengibre fresco.",
-        price: 10,
-      },
-      {
-        id: "fresh-tea-mango",
-        name: "Mango",
-        description: "Té frío con pulpa natural de mango.",
-        price: 10,
-      },
-    ],
-  },
-
-  // ─── 14. FRAPPÉS ──────────────────────────────────────────────────────────
+  // ─── 13. FRAPPÉS ──────────────────────────────────────────────────────────
   {
     id: "frappes",
     name: "Frappés",

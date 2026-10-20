@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { MapPin, Clock, Navigation, MessageCircle } from "lucide-react";
+import { MapPin, Clock, Navigation, MessageCircle, Award } from "lucide-react";
 import { config } from "@/data/config";
 
 export default function HeroSection() {
@@ -103,6 +103,14 @@ export default function HeroSection() {
           >
             <Navigation size={15} aria-hidden="true" />
             Cómo llegar
+          </a>
+          <a
+            href="#club-tunche"
+            className="flex items-center justify-center gap-1.5 text-xs font-semibold text-tunche-gold hover:text-tunche-gold-bright transition-colors py-1.5"
+            aria-label="Conocer el Club del Tunche, cupones y beneficios"
+          >
+            <Award size={14} aria-hidden="true" />
+            <span>Club del Tunche · Beneficios y Cupones</span>
           </a>
         </div>
       </div>
