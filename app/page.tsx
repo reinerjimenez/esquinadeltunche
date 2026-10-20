@@ -13,6 +13,7 @@ import CartButton from "@/components/CartButton";
 import CartSheet from "@/components/CartSheet";
 import ClubSection from "@/components/ClubSection";
 import MapSection from "@/components/MapSection";
+import ShareBlock from "@/components/ShareBlock";
 import Footer from "@/components/Footer";
 import Toast from "@/components/Toast";
 
@@ -197,6 +198,9 @@ export default function HomePage() {
 
           {/* Map section */}
           {!searchQuery && <MapSection />}
+
+          {/* Share block — between map and footer */}
+          {!searchQuery && <ShareBlock />}
         </main>
 
         {/* Footer */}

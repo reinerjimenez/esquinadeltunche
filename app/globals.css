@@ -1123,10 +1123,10 @@ h1, h2, h3 {
   max-width: 38rem;
 }
 
-/* Tab bar */
+/* Tab bar — 3 tabs */
 .club-tabbar {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 4px;
   background: var(--tunche-surface);
   border: 1px solid var(--tunche-border);
@@ -1141,7 +1141,7 @@ h1, h2, h3 {
   align-items: center;
   justify-content: center;
   gap: 4px;
-  padding: 8px 4px;
+  padding: 8px 6px;
   border: none;
   border-radius: 10px;
   background: transparent;
@@ -1151,9 +1151,10 @@ h1, h2, h3 {
   font-size: 0.6875rem;
   font-weight: 600;
   line-height: 1.2;
-  transition: color 150ms ease, background 150ms ease;
+  transition: color 150ms ease, background 150ms ease, transform 150ms cubic-bezier(0.23,1,0.32,1);
   min-height: 52px;
   position: relative;
+  outline: none;
 }
 
 .club-tab svg {
@@ -1161,7 +1162,8 @@ h1, h2, h3 {
   transition: color 150ms ease;
 }
 
-/* Responsive labels: only show long label on wider screens */
+/* Labels: show short on very small screens, full label from 340px up
+   (3 tabs give more room per tab vs the previous 4-tab layout) */
 .club-tab-label {
   display: none;
 }
@@ -1169,13 +1171,19 @@ h1, h2, h3 {
   display: block;
 }
 
-@media (min-width: 380px) {
+@media (min-width: 340px) {
   .club-tab-short {
     display: none;
   }
   .club-tab-label {
     display: block;
   }
+}
+
+/* Focus ring — visible for keyboard users, hidden for mouse */
+.club-tab:focus-visible {
+  outline: 2px solid var(--tunche-gold);
+  outline-offset: 2px;
 }
 
 .club-tab.active {
@@ -1222,5 +1230,96 @@ h1, h2, h3 {
 @media (prefers-reduced-motion: reduce) {
   .club-panel {
     animation: none;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   SHARE BLOCK — between MapSection and Footer
+   Compact horizontal layout
+   ═══════════════════════════════════════════ */
+
+.share-block {
+  padding-inline: var(--space-page);
+  margin-top: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.share-block-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--tunche-surface);
+  border: 1px solid var(--tunche-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+}
+
+.share-block-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tunche-gold);
+  margin-bottom: 2px;
+}
+
+.share-block-desc {
+  color: var(--tunche-muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.share-block-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.share-block-wa {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 14px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: #25d366;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 150ms ease, transform 150ms cubic-bezier(0.23,1,0.32,1);
+  box-shadow: 0 3px 10px rgba(37,211,102,0.2);
+}
+
+.share-block-wa:active {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .share-block-wa:hover {
+    background: #20ba59;
+  }
+}
+
+@media (min-width: 480px) {
+  .share-block-inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .share-block-copy {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .share-block-actions {
+    flex-shrink: 0;
   }
 }

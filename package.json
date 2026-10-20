@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
-    "build": "next build",
+    "build": "cross-env NODE_OPTIONS=\"--require ./scripts/patch-readlink.cjs\" next build --webpack",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@next/swc-win32-x64-msvc": "16.4.2",
     "lucide-react": "^1.56.0",
     "next": "16.4.0",
     "react": "19.3.0",
@@ -20,6 +21,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cross-env": "^10.1.0",
     "eslint": "^9",
     "eslint-config-next": "16.4.0",
     "tailwindcss": "^4",

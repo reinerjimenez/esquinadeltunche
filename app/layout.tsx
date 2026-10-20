@@ -17,7 +17,10 @@ const dmSans = DM_Sans({
   display: "swap",
 });
 
+import { config } from "@/data/config";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(config.publicUrl),
   title: "La Esquina del Tunche | Carta Digital — Tingo María",
   description:
     "Carta digital de La Esquina del Tunche, restaurante de cocina amazónica y marina peruana en Tingo María. Tacacho, cecina, ceviches, jaleas, chifas y más. Haz tu pedido por WhatsApp.",
@@ -53,7 +56,10 @@ export const metadata: Metadata = {
   },
   manifest: "/manifest.json",
   icons: {
-    icon: "/img/logo.webp",
+    icon: [
+      { url: "/favicon.ico", type: "image/x-icon" },
+      { url: "/img/logo.webp", type: "image/webp" },
+    ],
     apple: "/img/logo.webp",
   },
 };
