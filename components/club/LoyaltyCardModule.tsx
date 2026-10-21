@@ -137,7 +137,7 @@ export default function LoyaltyCardModule({ config }: LoyaltyCardModuleProps) {
       {/* Barra de progreso visual */}
       <div className="w-full bg-tunche-dark/70 rounded-full h-2 mb-5 overflow-hidden border border-tunche-border">
         <div
-          className="h-full bg-gradient-to-r from-tunche-gold-dim via-tunche-gold to-tunche-gold-bright transition-all duration-500 rounded-full"
+          className="h-full rounded-full bg-gradient-to-r from-tunche-gold-dim via-tunche-gold to-tunche-gold-bright transition-[width] duration-300"
           style={{ width: `${(visits / targetVisits) * 100}%` }}
         />
       </div>
@@ -155,7 +155,7 @@ export default function LoyaltyCardModule({ config }: LoyaltyCardModuleProps) {
           return (
             <div
               key={slotNumber}
-              className={`flex flex-col items-center justify-center p-2 rounded-xl border text-center transition-all aspect-square ${
+              className={`flex flex-col items-center justify-center p-2 rounded-xl border text-center transition-[background-color,border-color,color,transform] duration-150 aspect-square ${
                 isStamped
                   ? "bg-tunche-gold/15 border-tunche-gold shadow-[0_0_12px_rgba(201,152,58,0.25)] text-tunche-gold scale-[1.02]"
                   : "bg-tunche-dark/50 border-dashed border-tunche-border/80 text-tunche-muted/50"

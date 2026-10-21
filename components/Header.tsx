@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { Search, ShoppingBag, X } from "lucide-react";
 import { useCart } from "@/lib/cart";
@@ -12,43 +12,27 @@ type HeaderProps = {
 
 export default function Header({ searchQuery, onSearch }: HeaderProps) {
   const { totalItems, totalPrice, openCart } = useCart();
-  const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 60);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   return (
-    <header
-      className="sticky top-0 z-40 transition-all duration-300"
-      style={{
-        background: scrolled
-          ? "rgba(10,26,16,0.96)"
-          : "linear-gradient(to bottom, rgba(10,26,16,0.98), rgba(10,26,16,0.85))",
-        backdropFilter: "blur(12px)",
-        borderBottom: scrolled ? "1px solid var(--tunche-border)" : "1px solid transparent",
-      }}
-    >
-      <div className="flex items-center gap-3 px-4 py-3">
+    <header id="site-header" className="site-header sticky top-0 z-40">
+      <div className="site-header-inner">
         {/* Logo */}
-        {!searchOpen && scrolled && (
+        {!searchOpen && (
           <div className="flex-shrink-0">
             <Image
               src="/img/logo.webp"
               alt="La Esquina del Tunche"
-              width={40}
-              height={40}
-              className="rounded-full border border-tunche-gold/30 shadow-md"
+              width={38}
+              height={38}
+              className="rounded-full border border-tunche-gold/30"
             />
           </div>
         )}
 
         {/* Search bar */}
         {searchOpen ? (
-          <div className="flex-1 flex items-center gap-2 bg-tunche-surface-2 border border-tunche-border rounded-full px-4 py-2">
+          <div className="header-search">
             <Search size={16} className="text-tunche-muted flex-shrink-0" aria-hidden="true" />
             <input
               type="search"
@@ -61,7 +45,7 @@ export default function Header({ searchQuery, onSearch }: HeaderProps) {
             />
             <button
               onClick={() => { onSearch(""); setSearchOpen(false); }}
-              className="text-tunche-muted hover:text-tunche-cream transition-colors"
+              className="header-icon-button"
               aria-label="Cerrar buscador"
             >
               <X size={16} />
@@ -75,7 +59,7 @@ export default function Header({ searchQuery, onSearch }: HeaderProps) {
             </div>
             <button
               onClick={() => setSearchOpen(true)}
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-tunche-surface-2 border border-tunche-border text-tunche-muted hover:text-tunche-cream hover:border-tunche-gold/40 transition-all"
+              className="header-icon-button"
               aria-label="Abrir buscador"
             >
               <Search size={18} />
@@ -86,7 +70,7 @@ export default function Header({ searchQuery, onSearch }: HeaderProps) {
         {/* Cart button */}
         <button
           onClick={openCart}
-          className="relative flex items-center justify-center w-10 h-10 rounded-full bg-tunche-surface-2 border border-tunche-border text-tunche-cream hover:border-tunche-gold/50 transition-all flex-shrink-0"
+          className="header-icon-button relative flex-shrink-0"
           aria-label={`Carrito con ${totalItems} productos, total S/ ${totalPrice.toFixed(2)}`}
           id="header-cart-btn"
         >

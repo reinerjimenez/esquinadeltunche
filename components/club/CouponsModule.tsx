@@ -98,7 +98,7 @@ export default function CouponsModule({ coupons }: CouponsModuleProps) {
               <button
                 type="button"
                 onClick={() => handleCopy(coupon.code)}
-                className="flex items-center justify-center w-9 h-9 rounded-full bg-tunche-surface-2 border border-tunche-border text-tunche-muted hover:text-tunche-gold hover:border-tunche-gold/40 transition-all flex-shrink-0"
+                className="flex size-11 items-center justify-center rounded-full border border-tunche-border bg-tunche-surface-2 text-tunche-muted transition-[color,border-color] duration-150 hover:border-tunche-gold/40 hover:text-tunche-gold flex-shrink-0"
                 aria-label={`Copiar código ${coupon.code}`}
                 title="Copiar código"
               >
@@ -115,7 +115,7 @@ export default function CouponsModule({ coupons }: CouponsModuleProps) {
               <button
                 type="button"
                 onClick={() => toggleExpand(coupon.code)}
-                className="flex items-center gap-1 text-[11px] font-medium text-tunche-muted hover:text-tunche-cream transition-colors"
+                className="flex min-h-11 items-center gap-1 text-[11px] font-medium text-tunche-muted transition-colors hover:text-tunche-cream"
                 aria-expanded={isExpanded}
               >
                 <span>{isExpanded ? "Ocultar condiciones" : "Ver condiciones de uso"}</span>

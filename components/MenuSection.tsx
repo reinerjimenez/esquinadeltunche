@@ -20,16 +20,16 @@ export default function MenuSection({ category, onDishClick, sectionRef }: MenuS
       {/* Section header */}
       <header className="category-heading">
         <div className="category-heading-copy">
-          <p className="category-eyebrow">Carta · {category.dishes.length} {category.dishes.length === 1 ? "plato" : "platos"}</p>
-          <h2
-            id={`heading-${category.id}`}
-            className="category-title"
-          >
-            {category.name}
-          </h2>
+          <div className="category-title-row">
+            <h2 id={`heading-${category.id}`} className="category-title">
+              {category.name}
+            </h2>
+            <span className="category-count" aria-label={`${category.dishes.length} platos`}>
+              {category.dishes.length}
+            </span>
+          </div>
           <p className="category-subtitle">{category.subtitle}</p>
         </div>
-        <span className="category-flourish" aria-hidden="true" />
       </header>
 
       {/* Dish cards */}

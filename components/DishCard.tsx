@@ -109,7 +109,7 @@ export default function DishCard({ dish, categoryId, onClick }: DishCardProps) {
           {dish.tags?.[0] && <span className={`tag tag-${dish.tags[0]}`}>{TAG_LABEL[dish.tags[0]]}</span>}
           <h3>{dish.name}</h3>
           {(dish.detail || dish.description) && (
-            <p className="line-clamp-1">
+            <p className="line-clamp-2">
               {dish.detail}{dish.detail && dish.description ? " — " : ""}{dish.description}
             </p>
           )}
@@ -129,19 +129,16 @@ export default function DishCard({ dish, categoryId, onClick }: DishCardProps) {
       aria-label={`${dish.name}, ${dish.price ? formatPrice(dish.price) : "Precio a consultar"}`}
     >
       <div className="dish-row-copy">
-        <div className="dish-row-heading">
-          <h3>{dish.name}</h3>
-          <span className="dish-leader" aria-hidden="true" />
-          <strong><DishPrice dish={dish} /></strong>
-        </div>
+        <h3>{dish.name}</h3>
         <div className="dish-row-meta">
           {(dish.detail || dish.description) && (
-            <p className="line-clamp-1">
+            <p className="line-clamp-2">
               {dish.detail}{dish.detail && dish.description ? " — " : ""}{dish.description}
             </p>
           )}
           {dish.tags?.[0] && <span className={`tag tag-${dish.tags[0]}`}>{TAG_LABEL[dish.tags[0]]}</span>}
         </div>
+        <strong className="dish-row-price"><DishPrice dish={dish} /></strong>
       </div>
       <div className="dish-row-action">{controls}</div>
     </article>

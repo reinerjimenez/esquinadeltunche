@@ -56,6 +56,12 @@ export default function HomePage() {
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
   const isScrollingRef = useRef(false);
 
+  const getStickyOffset = useCallback(() => {
+    const headerHeight = document.getElementById("site-header")?.offsetHeight ?? 62;
+    const navHeight = document.getElementById("category-nav")?.offsetHeight ?? 58;
+    return headerHeight + navHeight + 12;
+  }, []);
+
   // Filter menu for search
   const filteredMenu: Category[] = useMemo(() => {
     if (!searchQuery) return menu;
@@ -77,12 +83,11 @@ export default function HomePage() {
     if (!el) return;
     isScrollingRef.current = true;
     setActiveCategory(id);
-    // Offset for header (65px) + category nav (~60px)
-    const offset = 130;
+    const offset = getStickyOffset();
     const top = el.getBoundingClientRect().top + window.scrollY - offset;
     window.scrollTo({ top, behavior: "smooth" });
     setTimeout(() => { isScrollingRef.current = false; }, 800);
-  }, []);
+  }, [getStickyOffset]);
 
   // Scroll-spy: detect which section is in view
   useEffect(() => {
@@ -93,7 +98,7 @@ export default function HomePage() {
     const updateActiveCategory = () => {
       animationFrame = null;
       if (!isScrollingRef.current) {
-        const offset = 140;
+        const offset = getStickyOffset();
         let currentId = menu[0]?.id ?? "";
 
         for (const [id, el] of sectionRefs.current) {
@@ -118,7 +123,7 @@ export default function HomePage() {
       window.removeEventListener("scroll", handleScroll);
       if (animationFrame !== null) window.cancelAnimationFrame(animationFrame);
     };
-  }, [searchQuery]);
+  }, [getStickyOffset, searchQuery]);
 
   const handleDishClick = (dish: Dish, categoryId?: string) => {
     setSelectedDish(dish);

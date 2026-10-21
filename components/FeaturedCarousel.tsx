@@ -88,7 +88,7 @@ export default function FeaturedCarousel({ dishes, onDishClick }: FeaturedCarous
               <article
                 key={dish.id}
                 onClick={() => onDishClick(dish)}
-                className="flex-shrink-0 w-48 rounded-xl overflow-hidden border border-tunche-border bg-tunche-surface cursor-pointer hover:border-tunche-gold/40 transition-all hover:shadow-[0_4px_20px_rgba(201,152,58,0.2)] active:scale-95"
+                className="flex-shrink-0 w-48 rounded-xl overflow-hidden border border-tunche-border bg-tunche-surface cursor-pointer transition-[border-color,box-shadow,transform] duration-200 hover:border-tunche-gold/40 hover:shadow-[0_4px_20px_rgba(201,152,58,0.14)] active:scale-[0.98]"
                 aria-label={`${dish.name}, ${dish.price ? formatPrice(dish.price) : "Precio a consultar"}`}
               >
                 {/* Image */}
@@ -120,7 +120,7 @@ export default function FeaturedCarousel({ dishes, onDishClick }: FeaturedCarous
                     </span>
                     <button
                       onClick={(e) => handleQuickAdd(dish, e)}
-                      className={`flex items-center justify-center w-11 h-11 rounded-full border transition-all text-base font-bold flex-shrink-0 ${
+                      className={`flex items-center justify-center w-11 h-11 rounded-full border transition-[background-color,border-color,color,transform] duration-150 text-base font-bold flex-shrink-0 ${
                         inCart
                           ? "bg-tunche-gold border-tunche-gold text-tunche-dark"
                           : "bg-tunche-surface-2 border-tunche-border text-tunche-gold hover:bg-tunche-gold hover:text-tunche-dark hover:border-tunche-gold"

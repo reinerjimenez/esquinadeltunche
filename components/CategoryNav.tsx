@@ -28,13 +28,13 @@ export default function CategoryNav({ categories, activeCategory, onCategoryClic
 
   return (
     <nav
-      className="sticky z-30 bg-tunche-dark border-b border-tunche-border"
-      style={{ top: "65px" }}
+      id="category-nav"
+      className="category-nav sticky z-30"
       aria-label="Navegación de categorías"
     >
       <div
         ref={scrollRef}
-        className="flex gap-2 px-4 py-3 overflow-x-auto scrollbar-hide"
+        className="category-nav-track scrollbar-hide"
         role="tablist"
         aria-label="Categorías del menú"
       >
