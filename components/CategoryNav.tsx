@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Category } from "@/data/menu";
 
 type CategoryNavProps = {
@@ -12,6 +12,32 @@ type CategoryNavProps = {
 export default function CategoryNav({ categories, activeCategory, onCategoryClick }: CategoryNavProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const chipRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+
+  const selectAndFocus = useCallback((index: number) => {
+    const category = categories[index];
+    if (!category) return;
+    onCategoryClick(category.id);
+    chipRefs.current.get(category.id)?.focus();
+  }, [categories, onCategoryClick]);
+
+  const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
+    const currentIndex = categories.findIndex((category) => category.id === activeCategory);
+    if (currentIndex < 0) return;
+
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      selectAndFocus((currentIndex + 1) % categories.length);
+    } else if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      selectAndFocus((currentIndex - 1 + categories.length) % categories.length);
+    } else if (event.key === "Home") {
+      event.preventDefault();
+      selectAndFocus(0);
+    } else if (event.key === "End") {
+      event.preventDefault();
+      selectAndFocus(categories.length - 1);
+    }
+  }, [activeCategory, categories, selectAndFocus]);
 
   // Scroll active chip into view
   useEffect(() => {
@@ -36,6 +62,7 @@ export default function CategoryNav({ categories, activeCategory, onCategoryClic
         ref={scrollRef}
         className="category-nav-track scrollbar-hide"
         role="tablist"
+        onKeyDown={handleKeyDown}
         aria-label="Categorías del menú"
       >
         {categories.map((cat) => (
@@ -45,8 +72,9 @@ export default function CategoryNav({ categories, activeCategory, onCategoryClic
             onClick={() => onCategoryClick(cat.id)}
             role="tab"
             aria-selected={activeCategory === cat.id}
+            tabIndex={activeCategory === cat.id ? 0 : -1}
             id={`tab-${cat.id}`}
-            aria-controls={`section-${cat.id}`}
+            aria-controls="catalog-panel"
             className={`chip ${activeCategory === cat.id ? "active" : ""}`}
           >
             {cat.name}

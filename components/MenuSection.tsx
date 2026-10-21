@@ -6,14 +6,12 @@ import DishCard from "./DishCard";
 type MenuSectionProps = {
   category: Category;
   onDishClick: (dish: Dish) => void;
-  sectionRef: (el: HTMLElement | null) => void;
 };
 
-export default function MenuSection({ category, onDishClick, sectionRef }: MenuSectionProps) {
+export default function MenuSection({ category, onDishClick }: MenuSectionProps) {
   return (
     <section
       id={`section-${category.id}`}
-      ref={sectionRef}
       aria-labelledby={`heading-${category.id}`}
       className="menu-category"
     >

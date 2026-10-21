@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { menu, Dish, Category } from "@/data/menu";
 import { config } from "@/data/config";
 import Header from "@/components/Header";
@@ -53,8 +53,6 @@ export default function HomePage() {
   const [activeCategory, setActiveCategory] = useState(menu[0]?.id ?? "");
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>();
-  const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
-  const isScrollingRef = useRef(false);
 
   const getStickyOffset = useCallback(() => {
     const headerHeight = document.getElementById("site-header")?.offsetHeight ?? 62;
@@ -77,53 +75,51 @@ export default function HomePage() {
       .filter((category) => category.dishes.length > 0);
   }, [searchQuery]);
 
-  // Scroll to category section
-  const scrollToCategory = useCallback((id: string) => {
-    const el = sectionRefs.current.get(id);
-    if (!el) return;
-    isScrollingRef.current = true;
-    setActiveCategory(id);
+  const visibleCategory = useMemo(
+    () => menu.find((category) => category.id === activeCategory) ?? menu[0],
+    [activeCategory]
+  );
+
+  const scrollCatalogIntoView = useCallback(() => {
+    const panel = document.getElementById("catalog-panel");
+    if (!panel) return;
+
     const offset = getStickyOffset();
-    const top = el.getBoundingClientRect().top + window.scrollY - offset;
-    window.scrollTo({ top, behavior: "smooth" });
-    setTimeout(() => { isScrollingRef.current = false; }, 800);
+    const panelRect = panel.getBoundingClientRect();
+    const targetTop = panelRect.top + window.scrollY - offset;
+    const isBelowCatalogStart = window.scrollY > targetTop + 32;
+    const isCatalogBelowViewport = panelRect.top > window.innerHeight * 0.72;
+
+    if (isBelowCatalogStart || isCatalogBelowViewport) {
+      window.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
+    }
   }, [getStickyOffset]);
 
-  // Scroll-spy: detect which section is in view
+  const selectCategory = useCallback((id: string) => {
+    if (!menu.some((category) => category.id === id)) return;
+
+    setActiveCategory(id);
+    window.history.replaceState(null, "", `#section-${id}`);
+    window.requestAnimationFrame(scrollCatalogIntoView);
+  }, [scrollCatalogIntoView]);
+
+  // Keep legacy category hashes useful now that only one category is mounted.
   useEffect(() => {
-    if (searchQuery) return; // don't spy during search
+    const applyCategoryHash = () => {
+      const hash = decodeURIComponent(window.location.hash.slice(1));
+      const categoryId = hash.startsWith("section-") ? hash.slice(8) : hash;
 
-    let animationFrame: number | null = null;
-
-    const updateActiveCategory = () => {
-      animationFrame = null;
-      if (!isScrollingRef.current) {
-        const offset = getStickyOffset();
-        let currentId = menu[0]?.id ?? "";
-
-        for (const [id, el] of sectionRefs.current) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top <= offset) {
-            currentId = id;
-          }
-        }
-
-        setActiveCategory((previousId) => previousId === currentId ? previousId : currentId);
+      if (menu.some((category) => category.id === categoryId)) {
+        setActiveCategory(categoryId);
       }
     };
 
-    const handleScroll = () => {
-      if (animationFrame === null) {
-        animationFrame = window.requestAnimationFrame(updateActiveCategory);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    applyCategoryHash();
+    window.addEventListener("hashchange", applyCategoryHash);
     return () => {
-      window.removeEventListener("scroll", handleScroll);
-      if (animationFrame !== null) window.cancelAnimationFrame(animationFrame);
+      window.removeEventListener("hashchange", applyCategoryHash);
     };
-  }, [getStickyOffset, searchQuery]);
+  }, []);
 
   const handleDishClick = (dish: Dish, categoryId?: string) => {
     setSelectedDish(dish);
@@ -157,7 +153,7 @@ export default function HomePage() {
           <CategoryNav
             categories={menu}
             activeCategory={activeCategory}
-            onCategoryClick={scrollToCategory}
+            onCategoryClick={selectCategory}
           />
 
           {/* Search results note */}
@@ -171,18 +167,20 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* Category sections */}
-          {filteredMenu.map((category) => (
-            <MenuSection
-              key={category.id}
-              category={category}
-              onDishClick={(dish) => handleDishClick(dish, category.id)}
-              sectionRef={(el) => {
-                if (el) sectionRefs.current.set(category.id, el);
-                else sectionRefs.current.delete(category.id);
-              }}
-            />
-          ))}
+          <div
+            id="catalog-panel"
+            role={searchQuery ? undefined : "tabpanel"}
+            aria-labelledby={searchQuery ? undefined : `tab-${activeCategory}`}
+            tabIndex={searchQuery ? undefined : 0}
+          >
+            {(searchQuery ? filteredMenu : visibleCategory ? [visibleCategory] : []).map((category) => (
+              <MenuSection
+                key={category.id}
+                category={category}
+                onDishClick={(dish) => handleDishClick(dish, category.id)}
+              />
+            ))}
+          </div>
 
           {/* Empty search state */}
           {searchQuery && filteredMenu.length === 0 && (
@@ -198,7 +196,7 @@ export default function HomePage() {
 
           {/* Club del Tunche — Fidelización, promociones, cupones y compartir */}
           {!searchQuery && (
-            <ClubSection onOpenMenu={() => scrollToCategory(menu[0]?.id ?? "")} />
+            <ClubSection onOpenMenu={() => selectCategory(menu[0]?.id ?? "")} />
           )}
 
           {/* Map section */}

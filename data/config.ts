@@ -11,8 +11,8 @@ export const config = {
   // Enlace oficial de Google Maps proporcionado por el propietario
   mapsUrl: "https://maps.app.goo.gl/iU27zBfXCvB18uW66?g_st=ic",
   mapsEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3937.4144987310056!2d-76.00401742469995!3d-9.29649089077591!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91a641c2031a2eeb%3A0xf01a8225e7951703!2sLa%20Esquina%20del%20Tunche!5e0!3m2!1ses-419!2spe!4v1791912414912!5m2!1ses-419!2spe",
-  // Enlace para reseñas en Google (deja vacío "" hasta contar con el enlace directo verificado de reseñas)
-  googleReviewsUrl: "",
+  // Ficha oficial de Google Maps; no es un enlace directo al formulario de reseña.
+  googleReviewsUrl: "https://maps.app.goo.gl/X7MXjDFJNnvYPpH68?g_st=ic",
   schedule: "TODO: horario de atención", // ej: "Lun–Dom: 8:00 am – 10:00 pm"
   orderTypes: { takeaway: true, dineIn: true },
   tableCount: 0, // 0 = sin límite de número de mesa
@@ -22,7 +22,7 @@ export const config = {
   social: {
     facebook: "https://www.facebook.com/share/1FKygWXNao/?mibextid=wwXIfr",
     tiktok: "https://www.tiktok.com/@esquinadeltunche?_r=1&_t=ZS-9AVqDaacohI",
-    instagram: "", // vacío = no se muestra el ícono
+    instagram: "https://www.instagram.com/esquinadeltunche?srtk=bWN6cmJuY2FlMmQy&utm_source=qr",
   },
   share: {
     title: "La Esquina del Tunche — Carta Digital",

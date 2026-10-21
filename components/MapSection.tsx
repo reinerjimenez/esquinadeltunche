@@ -91,22 +91,30 @@ export default function MapSection() {
           {config.whatsappDisplay}
         </a>
 
-        {/* Botón de opiniones en Google (solo visible cuando esté configurada la URL oficial) */}
-        {hasReviews && (
+      </div>
+
+      {hasReviews && (
+        <aside className="review-card" aria-labelledby="review-card-title">
+          <div className="review-card-icon" aria-hidden="true">
+            <Star size={18} />
+          </div>
+          <div className="review-card-copy">
+            <h3 id="review-card-title">¿Disfrutaste tu visita?</h3>
+            <p>Tu opinión nos ayuda a seguir mejorando. Comparte tu experiencia en Google.</p>
+          </div>
           <a
             href={config.googleReviewsUrl}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackEvent("review_click")}
-            className="btn-ghost visit-action text-tunche-gold"
-            aria-label="Dejar o consultar opiniones en Google"
+            className="review-card-action"
+            aria-label="Abrir la ficha de La Esquina del Tunche en Google Maps para dejar una reseña"
             id="map-reviews-btn"
           >
-            <Star size={16} aria-hidden="true" />
-            Opiniones en Google
+            Dejar una reseña en Google
           </a>
-        )}
-      </div>
+        </aside>
+      )}
     </section>
   );
 }
