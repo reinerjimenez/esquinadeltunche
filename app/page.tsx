@@ -6,6 +6,7 @@ import { config } from "@/data/config";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import CategoryNav from "@/components/CategoryNav";
+import CategorySheet from "@/components/CategorySheet";
 import FeaturedCarousel from "@/components/FeaturedCarousel";
 import MenuSection from "@/components/MenuSection";
 import DishSheet from "@/components/DishSheet";
@@ -57,8 +58,8 @@ export default function HomePage() {
 
   const getStickyOffset = useCallback(() => {
     const headerHeight = document.getElementById("site-header")?.offsetHeight ?? 62;
-    const navHeight = document.getElementById("category-nav")?.offsetHeight ?? 58;
-    return headerHeight + navHeight + 12;
+    const navHeight = document.getElementById("category-nav")?.offsetHeight ?? 54;
+    return headerHeight + navHeight + 8;
   }, []);
 
   // Filter menu for search
@@ -88,34 +89,38 @@ export default function HomePage() {
     const offset = getStickyOffset();
     const panelRect = panel.getBoundingClientRect();
     const targetTop = panelRect.top + window.scrollY - offset;
-    const isBelowCatalogStart = window.scrollY > targetTop + 32;
-    const isCatalogBelowViewport = panelRect.top > window.innerHeight * 0.72;
+    const isBelowCatalogStart = window.scrollY > targetTop + 24;
+    const isCatalogBelowViewport = panelRect.top > window.innerHeight * 0.7;
+
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (isBelowCatalogStart || isCatalogBelowViewport) {
-      window.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
+      window.scrollTo({
+        top: Math.max(0, targetTop),
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+      });
     }
   }, [getStickyOffset]);
 
-  const selectCategory = useCallback((id: string) => {
-    if (!menu.some((category) => category.id === id)) return;
+  const selectCategory = useCallback(
+    (id: string) => {
+      if (!menu.some((category) => category.id === id)) return;
 
-    setActiveCategory(id);
-    window.history.replaceState(null, "", `#section-${id}`);
-    window.requestAnimationFrame(scrollCatalogIntoView);
-  }, [scrollCatalogIntoView]);
+      setActiveCategory(id);
+      setIsCategoryPanelOpen(false);
+      window.history.replaceState(null, "", `#section-${id}`);
+      window.requestAnimationFrame(scrollCatalogIntoView);
+    },
+    [scrollCatalogIntoView]
+  );
 
   const exploreCategories = useCallback(() => {
     setIsCategoryPanelOpen(true);
-    window.requestAnimationFrame(() => {
-      const selector = document.getElementById("category-selector");
-      const headerHeight = document.getElementById("site-header")?.offsetHeight ?? 62;
-      if (!selector) return;
-      const top = selector.getBoundingClientRect().top + window.scrollY - headerHeight - 10;
-      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
-    });
   }, []);
 
-  // Keep legacy category hashes useful now that only one category is mounted.
+  // Keep category hashes useful when URL has hash
   useEffect(() => {
     const applyCategoryHash = () => {
       const hash = decodeURIComponent(window.location.hash.slice(1));
@@ -138,6 +143,8 @@ export default function HomePage() {
     setSelectedCategoryId(categoryId);
   };
 
+  const isModalOpen = Boolean(selectedDish || isCategoryPanelOpen);
+
   return (
     <>
       <div className="app-container">
@@ -154,7 +161,6 @@ export default function HomePage() {
             <FeaturedCarousel
               dishes={featuredDishes}
               onDishClick={(dish) => {
-                // Find the dish's category
                 const cat = menu.find((c) => c.dishes.some((d) => d.id === dish.id));
                 handleDishClick(dish, cat?.id);
               }}
@@ -187,16 +193,18 @@ export default function HomePage() {
             aria-labelledby={searchQuery ? undefined : `tab-${activeCategory}`}
             tabIndex={searchQuery ? undefined : 0}
           >
-            {(searchQuery ? filteredMenu : visibleCategory ? [visibleCategory] : []).map((category) => (
-              <MenuSection
-                key={category.id}
-                category={category}
-                onDishClick={(dish) => handleDishClick(dish, category.id)}
-                categoryPosition={menu.findIndex((item) => item.id === category.id) + 1}
-                totalCategories={menu.length}
-                onExploreCategories={searchQuery ? undefined : exploreCategories}
-              />
-            ))}
+            {(searchQuery ? filteredMenu : visibleCategory ? [visibleCategory] : []).map(
+              (category) => (
+                <MenuSection
+                  key={category.id}
+                  category={category}
+                  onDishClick={(dish) => handleDishClick(dish, category.id)}
+                  categoryPosition={menu.findIndex((item) => item.id === category.id) + 1}
+                  totalCategories={menu.length}
+                  onExploreCategories={searchQuery ? undefined : exploreCategories}
+                />
+              )
+            )}
           </div>
 
           {/* Empty search state */}
@@ -211,7 +219,7 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* Club del Tunche — Fidelización, promociones, cupones y compartir */}
+          {/* Club del Tunche — Fidelización, promociones, cupones y especiales */}
           {!searchQuery && (
             <ClubSection onOpenMenu={() => selectCategory(menu[0]?.id ?? "")} />
           )}
@@ -226,19 +234,31 @@ export default function HomePage() {
         {/* Footer */}
         {!searchQuery && <Footer />}
 
-        {/* Floating cart button */}
-        <CartButton />
+        {/* Floating cart button — hidden when any modal or sheet is open */}
+        <CartButton isHidden={isModalOpen} />
 
         {/* Toast */}
         <Toast />
       </div>
 
-      {/* Bottom sheets (outside app-container for proper positioning) */}
+      {/* Category selector bottom sheet / modal */}
+      <CategorySheet
+        isOpen={isCategoryPanelOpen}
+        categories={menu}
+        activeCategoryId={activeCategory}
+        onSelectCategory={selectCategory}
+        onClose={() => setIsCategoryPanelOpen(false)}
+      />
+
+      {/* Bottom sheets (outside app-container for proper z-index and fixed positioning) */}
       <DishSheet
         key={selectedDish?.id ?? "closed-dish"}
         dish={selectedDish}
         categoryId={selectedCategoryId}
-        onClose={() => { setSelectedDish(null); setSelectedCategoryId(undefined); }}
+        onClose={() => {
+          setSelectedDish(null);
+          setSelectedCategoryId(undefined);
+        }}
       />
       <CartSheet />
     </>

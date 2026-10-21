@@ -15,8 +15,6 @@ type MenuSectionProps = {
 export default function MenuSection({
   category,
   onDishClick,
-  categoryPosition,
-  totalCategories,
   onExploreCategories,
 }: MenuSectionProps) {
   return (
@@ -25,20 +23,17 @@ export default function MenuSection({
       aria-labelledby={`heading-${category.id}`}
       className="menu-category"
     >
-      {/* Section header */}
+      {/* Section header: Clean hierarchy without redundant tags */}
       <header className="category-heading">
         <div className="category-heading-copy">
-          <div className="category-title-row">
-            <h2 id={`heading-${category.id}`} className="category-title">
-              {category.name}
-            </h2>
-          </div>
-          <p className="category-progress">
-            Categoría {categoryPosition} de {totalCategories}
-            <span aria-hidden="true"> · </span>
-            {category.dishes.length} {category.dishes.length === 1 ? "plato" : "platos"}
+          <h2 id={`heading-${category.id}`} className="category-title">
+            {category.name}
+          </h2>
+          <p className="category-subtitle">
+            {category.dishes.length}{" "}
+            {category.dishes.length === 1 ? "plato disponible" : "platos disponibles"}
+            {category.subtitle ? ` · ${category.subtitle}` : ""}
           </p>
-          <p className="category-subtitle">{category.subtitle}</p>
         </div>
       </header>
 
@@ -56,7 +51,12 @@ export default function MenuSection({
 
       {onExploreCategories && (
         <div className="category-explore">
-          <button type="button" onClick={onExploreCategories} className="category-explore-button">
+          <button
+            type="button"
+            onClick={onExploreCategories}
+            className="category-explore-button"
+            aria-label="Ver todas las categorías en el selector"
+          >
             <LayoutGrid size={15} aria-hidden="true" />
             Explorar otra categoría
           </button>

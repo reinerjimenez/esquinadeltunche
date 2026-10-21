@@ -13,6 +13,7 @@
 # testing
 /coverage
 /.perf-edge-profile/
+/artifacts/final-qa/
 
 # next.js
 /.next/

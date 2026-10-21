@@ -1,12 +1,23 @@
 "use client";
 
 import Image from "next/image";
-import { MapPin, Clock, Navigation, MessageCircle, Award } from "lucide-react";
+import { MapPin, Clock, Navigation, MessageCircle } from "lucide-react";
 import { config } from "@/data/config";
 
 export default function HeroSection() {
   const scrollToMenu = () => {
-    document.getElementById("menu-section")?.scrollIntoView({ behavior: "smooth" });
+    const target = document.getElementById("category-selector") || document.getElementById("menu-section");
+    if (!target) return;
+    const headerHeight = document.getElementById("site-header")?.offsetHeight ?? 62;
+    const top = target.getBoundingClientRect().top + window.scrollY - headerHeight;
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    window.scrollTo({
+      top: Math.max(0, top),
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+    });
   };
 
   return (
@@ -100,18 +111,8 @@ export default function HeroSection() {
             <Navigation size={15} aria-hidden="true" />
             Cómo llegar
           </a>
-          <a
-            href="#club-tunche"
-            className="hero-club-link"
-            aria-label="Conocer el Club del Tunche, cupones y beneficios"
-          >
-            <Award size={14} aria-hidden="true" />
-            <span>Club del Tunche · Beneficios y Cupones</span>
-          </a>
         </div>
       </div>
-
-      {/* Scroll indicator */}
     </section>
   );
 }

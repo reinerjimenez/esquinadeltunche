@@ -72,20 +72,42 @@ export default function DishCard({ dish, categoryId, onClick }: DishCardProps) {
     else handleAdd(event);
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter" || event.key === " ") {
+      if ((event.target as HTMLElement).tagName !== "BUTTON") {
+        event.preventDefault();
+        onClick();
+      }
+    }
+  };
+
   const controls = hasChoices || !simpleCartItem ? (
     <button
       onClick={handleAdd}
       className={`dish-add ${adding ? "is-adding" : ""}`}
-      aria-label={hasChoices ? `Elegir opción para ${dish.name}` : `Agregar ${dish.name}`}
+      aria-label={hasChoices ? `Elegir opción para ${dish.name}` : `Agregar ${dish.name} al pedido`}
       id={`add-btn-${dish.id}`}
+      type="button"
     >
       <Plus size={20} strokeWidth={2.25} aria-hidden="true" />
     </button>
   ) : (
     <div className="qty-stepper" onClick={(event) => event.stopPropagation()}>
-      <button onClick={handleDecrement} aria-label={`Quitar una unidad de ${dish.name}`}>−</button>
+      <button
+        onClick={handleDecrement}
+        aria-label={`Quitar una unidad de ${dish.name}`}
+        type="button"
+      >
+        −
+      </button>
       <span aria-live="polite">{simpleCartItem.quantity}</span>
-      <button onClick={handleIncrement} aria-label={`Agregar una unidad más de ${dish.name}`}>+</button>
+      <button
+        onClick={handleIncrement}
+        aria-label={`Agregar una unidad más de ${dish.name}`}
+        type="button"
+      >
+        +
+      </button>
     </div>
   );
 
@@ -93,8 +115,11 @@ export default function DishCard({ dish, categoryId, onClick }: DishCardProps) {
     return (
       <article
         onClick={onClick}
+        onKeyDown={handleKeyDown}
+        tabIndex={0}
+        role="button"
         className="dish-card dish-card-photo"
-        aria-label={`${dish.name}, ${dish.price ? formatPrice(dish.price) : "Precio a consultar"}`}
+        aria-label={`${dish.name}, ${dish.price ? formatPrice(dish.price) : "Precio a consultar"}. Clic para ver detalles.`}
       >
         <div className="dish-photo">
           <DishImage
@@ -106,15 +131,23 @@ export default function DishCard({ dish, categoryId, onClick }: DishCardProps) {
           />
         </div>
         <div className="dish-photo-copy">
-          {dish.tags?.[0] && <span className={`tag tag-${dish.tags[0]}`}>{TAG_LABEL[dish.tags[0]]}</span>}
+          {dish.tags?.[0] && (
+            <span className={`tag tag-${dish.tags[0]}`}>
+              {TAG_LABEL[dish.tags[0]] ?? dish.tags[0]}
+            </span>
+          )}
           <h3>{dish.name}</h3>
           {(dish.detail || dish.description) && (
             <p className="line-clamp-2">
-              {dish.detail}{dish.detail && dish.description ? " — " : ""}{dish.description}
+              {dish.detail}
+              {dish.detail && dish.description ? " — " : ""}
+              {dish.description}
             </p>
           )}
           <div className="dish-photo-action">
-            <strong><DishPrice dish={dish} /></strong>
+            <strong>
+              <DishPrice dish={dish} />
+            </strong>
             {controls}
           </div>
         </div>
@@ -125,20 +158,31 @@ export default function DishCard({ dish, categoryId, onClick }: DishCardProps) {
   return (
     <article
       onClick={onClick}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role="button"
       className={`dish-card dish-card-row ${simpleCartItem ? "has-quantity" : ""}`}
-      aria-label={`${dish.name}, ${dish.price ? formatPrice(dish.price) : "Precio a consultar"}`}
+      aria-label={`${dish.name}, ${dish.price ? formatPrice(dish.price) : "Precio a consultar"}. Clic para ver detalles.`}
     >
       <div className="dish-row-copy">
         <h3>{dish.name}</h3>
         <div className="dish-row-meta">
           {(dish.detail || dish.description) && (
             <p className="line-clamp-2">
-              {dish.detail}{dish.detail && dish.description ? " — " : ""}{dish.description}
+              {dish.detail}
+              {dish.detail && dish.description ? " — " : ""}
+              {dish.description}
             </p>
           )}
-          {dish.tags?.[0] && <span className={`tag tag-${dish.tags[0]}`}>{TAG_LABEL[dish.tags[0]]}</span>}
+          {dish.tags?.[0] && (
+            <span className={`tag tag-${dish.tags[0]}`}>
+              {TAG_LABEL[dish.tags[0]] ?? dish.tags[0]}
+            </span>
+          )}
         </div>
-        <strong className="dish-row-price"><DishPrice dish={dish} /></strong>
+        <strong className="dish-row-price">
+          <DishPrice dish={dish} />
+        </strong>
       </div>
       <div className="dish-row-action">{controls}</div>
     </article>

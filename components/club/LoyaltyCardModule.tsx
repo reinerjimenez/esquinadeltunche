@@ -106,7 +106,7 @@ export default function LoyaltyCardModule({ config }: LoyaltyCardModuleProps) {
   const isCompleted = visits >= targetVisits;
 
   return (
-    <div className="card-surface border border-tunche-gold/40 p-5 sm:p-6 relative overflow-hidden bg-gradient-to-b from-tunche-surface to-tunche-surface-2 shadow-lg">
+    <div className="card-surface border border-tunche-gold/40 p-4 sm:p-6 relative overflow-hidden bg-gradient-to-b from-tunche-surface to-tunche-surface-2 shadow-lg">
       {/* Fondo decorativo sutil */}
       <div className="absolute top-0 right-0 w-36 h-36 bg-tunche-gold/5 rounded-full blur-3xl pointer-events-none" />
 
