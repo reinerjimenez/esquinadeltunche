@@ -51,6 +51,7 @@ const searchableDishFields = new Map(
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState(menu[0]?.id ?? "");
+  const [isCategoryPanelOpen, setIsCategoryPanelOpen] = useState(false);
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>();
 
@@ -103,6 +104,17 @@ export default function HomePage() {
     window.requestAnimationFrame(scrollCatalogIntoView);
   }, [scrollCatalogIntoView]);
 
+  const exploreCategories = useCallback(() => {
+    setIsCategoryPanelOpen(true);
+    window.requestAnimationFrame(() => {
+      const selector = document.getElementById("category-selector");
+      const headerHeight = document.getElementById("site-header")?.offsetHeight ?? 62;
+      if (!selector) return;
+      const top = selector.getBoundingClientRect().top + window.scrollY - headerHeight - 10;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    });
+  }, []);
+
   // Keep legacy category hashes useful now that only one category is mounted.
   useEffect(() => {
     const applyCategoryHash = () => {
@@ -154,6 +166,8 @@ export default function HomePage() {
             categories={menu}
             activeCategory={activeCategory}
             onCategoryClick={selectCategory}
+            isPanelOpen={isCategoryPanelOpen}
+            onPanelOpenChange={setIsCategoryPanelOpen}
           />
 
           {/* Search results note */}
@@ -178,6 +192,9 @@ export default function HomePage() {
                 key={category.id}
                 category={category}
                 onDishClick={(dish) => handleDishClick(dish, category.id)}
+                categoryPosition={menu.findIndex((item) => item.id === category.id) + 1}
+                totalCategories={menu.length}
+                onExploreCategories={searchQuery ? undefined : exploreCategories}
               />
             ))}
           </div>
