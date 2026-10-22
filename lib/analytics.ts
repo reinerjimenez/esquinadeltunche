@@ -3,20 +3,15 @@
  *
  * ⚠️ CONSIDERACIONES TÉCNICAS Y LIMITACIONES:
  * 1. Esta implementación se ejecuta 100% en el frontend del cliente.
- * 2. Registra eventos de interacción del usuario (visitas, clics en WhatsApp, cupones, compartir).
+ * 2. Registra eventos de interacción del usuario (clics en WhatsApp, mapa y compartir).
  * 3. NO confirma una venta, cobro o pedido completado; la confirmación definitiva
- *    de pedidos, pagos y validación física de sellos corresponde al personal del restaurante.
+ *    de pedidos y pagos corresponde al personal del restaurante.
  * 4. Compatible con Google Analytics (gtag), Meta Pixel o Vercel Analytics si se conectan en el futuro.
  */
 
 export type AnalyticsEventType =
   | "page_view"
   | "whatsapp_click"
-  | "promo_click"
-  | "coupon_copy"
-  | "coupon_apply_cart"
-  | "loyalty_stamp"
-  | "loyalty_reset"
   | "share_click"
   | "map_directions_click"
   | "review_click";

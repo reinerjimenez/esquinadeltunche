@@ -12,7 +12,6 @@ import MenuSection from "@/components/MenuSection";
 import DishSheet from "@/components/DishSheet";
 import CartButton from "@/components/CartButton";
 import CartSheet from "@/components/CartSheet";
-import ClubSection from "@/components/ClubSection";
 import MapSection from "@/components/MapSection";
 import ShareBlock from "@/components/ShareBlock";
 import Footer from "@/components/Footer";
@@ -56,12 +55,6 @@ export default function HomePage() {
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>();
 
-  const getStickyOffset = useCallback(() => {
-    const headerHeight = document.getElementById("site-header")?.offsetHeight ?? 62;
-    const navHeight = document.getElementById("category-nav")?.offsetHeight ?? 54;
-    return headerHeight + navHeight + 8;
-  }, []);
-
   // Filter menu for search
   const filteredMenu: Category[] = useMemo(() => {
     if (!searchQuery) return menu;
@@ -82,27 +75,21 @@ export default function HomePage() {
     [activeCategory]
   );
 
-  const scrollCatalogIntoView = useCallback(() => {
-    const panel = document.getElementById("catalog-panel");
-    if (!panel) return;
+  const scrollCategoryControlsIntoView = useCallback((preferredBehavior?: ScrollBehavior) => {
+    const selectorHeading = document.querySelector<HTMLElement>(".category-selector-heading");
+    const header = document.getElementById("site-header");
+    if (!selectorHeading || !header) return;
 
-    const offset = getStickyOffset();
-    const panelRect = panel.getBoundingClientRect();
-    const targetTop = panelRect.top + window.scrollY - offset;
-    const isBelowCatalogStart = window.scrollY > targetTop + 24;
-    const isCatalogBelowViewport = panelRect.top > window.innerHeight * 0.7;
-
+    const navFlowTop = selectorHeading.getBoundingClientRect().bottom + window.scrollY;
+    const targetTop = Math.max(0, navFlowTop - header.getBoundingClientRect().height);
     const prefersReducedMotion =
-      typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    if (isBelowCatalogStart || isCatalogBelowViewport) {
-      window.scrollTo({
-        top: Math.max(0, targetTop),
-        behavior: prefersReducedMotion ? "auto" : "smooth",
-      });
-    }
-  }, [getStickyOffset]);
+    window.scrollTo({
+      top: targetTop,
+      behavior: preferredBehavior ?? (prefersReducedMotion ? "auto" : "smooth"),
+    });
+  }, []);
 
   const selectCategory = useCallback(
     (id: string) => {
@@ -111,14 +98,24 @@ export default function HomePage() {
       setActiveCategory(id);
       setIsCategoryPanelOpen(false);
       window.history.replaceState(null, "", `#section-${id}`);
-      window.requestAnimationFrame(scrollCatalogIntoView);
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => scrollCategoryControlsIntoView());
+      });
     },
-    [scrollCatalogIntoView]
+    [scrollCategoryControlsIntoView]
+  );
+
+  const setCategoryPanelOpen = useCallback(
+    (isOpen: boolean) => {
+      if (isOpen) scrollCategoryControlsIntoView("auto");
+      setIsCategoryPanelOpen(isOpen);
+    },
+    [scrollCategoryControlsIntoView]
   );
 
   const exploreCategories = useCallback(() => {
-    setIsCategoryPanelOpen(true);
-  }, []);
+    setCategoryPanelOpen(true);
+  }, [setCategoryPanelOpen]);
 
   // Keep category hashes useful when URL has hash
   useEffect(() => {
@@ -173,7 +170,7 @@ export default function HomePage() {
             activeCategory={activeCategory}
             onCategoryClick={selectCategory}
             isPanelOpen={isCategoryPanelOpen}
-            onPanelOpenChange={setIsCategoryPanelOpen}
+            onPanelOpenChange={setCategoryPanelOpen}
           />
 
           {/* Search results note */}
@@ -217,11 +214,6 @@ export default function HomePage() {
                 <strong className="text-tunche-cream">&ldquo;{searchQuery}&rdquo;</strong>
               </p>
             </div>
-          )}
-
-          {/* Club del Tunche — Fidelización, promociones, cupones y especiales */}
-          {!searchQuery && (
-            <ClubSection onOpenMenu={() => selectCategory(menu[0]?.id ?? "")} />
           )}
 
           {/* Map section */}

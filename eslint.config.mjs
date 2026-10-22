@@ -13,6 +13,7 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     ".perf-edge-profile/**",
+    ".edge-final-qa/**",
     "scripts/**",
   ]),
 ]);

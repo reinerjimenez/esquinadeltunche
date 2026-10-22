@@ -1,5 +1,3 @@
-import { clubConfig } from "./club";
-
 export const config = {
   name: "La Esquina del Tunche",
   slogan: "Sabores de la selva y del mar",
@@ -44,7 +42,6 @@ export const config = {
     toppings: ["Aguacate", "Edamame", "Pepino", "Zanahoria", "Cebolla morada", "Mango"],
     salsas: ["Teriyaki", "Spicy Mayo", "Ponzu", "Sesame"],
   },
-  club: clubConfig,
 };
 
 export type Config = typeof config;

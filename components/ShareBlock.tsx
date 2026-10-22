@@ -11,7 +11,7 @@ const emptySubscribe = () => () => {};
 
 /**
  * Bloque compacto «Comparte la carta» — aparece entre MapSection y Footer.
- * Mantiene todas las funcionalidades de ShareModule (nativo, WhatsApp, copiar).
+ * Mantiene compartir nativo, WhatsApp y copia de enlace en un bloque independiente.
  */
 export default function ShareBlock() {
   const { showToast } = useCart();

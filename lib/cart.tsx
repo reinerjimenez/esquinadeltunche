@@ -28,7 +28,6 @@ const initialState: CartState = {
   tableNumber: "",
   customerName: "",
   comment: "",
-  promoCode: "",
   isCartOpen: false,
   toastMessage: null,
 };
@@ -45,7 +44,6 @@ type CartAction =
   | { type: "SET_TABLE"; tableNumber: string }
   | { type: "SET_NAME"; customerName: string }
   | { type: "SET_COMMENT"; comment: string }
-  | { type: "SET_PROMO_CODE"; promoCode: string }
   | { type: "CLEAR_CART" }
   | { type: "OPEN_CART" }
   | { type: "CLOSE_CART" }
@@ -98,8 +96,6 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       return { ...state, customerName: action.customerName };
     case "SET_COMMENT":
       return { ...state, comment: action.comment };
-    case "SET_PROMO_CODE":
-      return { ...state, promoCode: action.promoCode };
     case "CLEAR_CART":
       return { ...initialState };
     case "OPEN_CART":
@@ -128,7 +124,6 @@ type CartContextType = {
   setTable: (tableNumber: string) => void;
   setName: (name: string) => void;
   setComment: (comment: string) => void;
-  setPromoCode: (promoCode: string) => void;
   clearCart: () => void;
   openCart: () => void;
   closeCart: () => void;
@@ -141,6 +136,23 @@ type CartContextType = {
 const CartContext = createContext<CartContextType | null>(null);
 
 const STORAGE_KEY = "tunche_cart";
+const LEGACY_VISITS_STORAGE_KEY = "tunche_loyalty_visits_v1";
+
+function normalizePersistedCart(value: unknown): Partial<CartState> {
+  if (!value || typeof value !== "object") return {};
+
+  const saved = value as Record<string, unknown>;
+  const orderType = saved.orderType;
+
+  return {
+    items: Array.isArray(saved.items) ? (saved.items as CartItem[]) : [],
+    orderType: orderType === "takeaway" || orderType === "dineIn" ? orderType : null,
+    address: typeof saved.address === "string" ? saved.address : "",
+    tableNumber: typeof saved.tableNumber === "string" ? saved.tableNumber : "",
+    customerName: typeof saved.customerName === "string" ? saved.customerName : "",
+    comment: typeof saved.comment === "string" ? saved.comment : "",
+  };
+}
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
 
@@ -150,10 +162,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // Load from localStorage on mount
   useEffect(() => {
     try {
+      localStorage.removeItem(LEGACY_VISITS_STORAGE_KEY);
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        const parsed = JSON.parse(saved);
-        dispatch({ type: "LOAD_STATE", state: parsed });
+        dispatch({ type: "LOAD_STATE", state: normalizePersistedCart(JSON.parse(saved)) });
       }
     } catch {
       // ignore parse errors
@@ -170,7 +182,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         tableNumber: state.tableNumber,
         customerName: state.customerName,
         comment: state.comment,
-        promoCode: state.promoCode,
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(persistable));
     } catch {
@@ -212,7 +223,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const setTable = useCallback((tableNumber: string) => dispatch({ type: "SET_TABLE", tableNumber }), []);
   const setName = useCallback((customerName: string) => dispatch({ type: "SET_NAME", customerName }), []);
   const setComment = useCallback((comment: string) => dispatch({ type: "SET_COMMENT", comment }), []);
-  const setPromoCode = useCallback((promoCode: string) => dispatch({ type: "SET_PROMO_CODE", promoCode }), []);
   const clearCart = useCallback(() => dispatch({ type: "CLEAR_CART" }), []);
   const openCart = useCallback(() => dispatch({ type: "OPEN_CART" }), []);
   const closeCart = useCallback(() => dispatch({ type: "CLOSE_CART" }), []);
@@ -232,7 +242,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setTable,
         setName,
         setComment,
-        setPromoCode,
         clearCart,
         openCart,
         closeCart,
