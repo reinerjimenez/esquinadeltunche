@@ -186,6 +186,7 @@ export const menu: Category[] = [
         description: "Palta, langostinos al panko y pesca del día, bañados en salsa acevichada de la casa.",
         detail: "Clásico · 10 cortes",
         price: 22,
+        image: "/img/makis/acevichado-tunche.webp",
       },
       {
         id: "furay-salvaje",
@@ -193,6 +194,7 @@ export const menu: Category[] = [
         description: "Palta, queso crema y trucha salmón, con salsa de tare o maracuyá salvaje.",
         detail: "Clásico · 10 cortes",
         price: 22,
+        image: "/img/makis/furay-salvaje.webp",
       },
       {
         id: "el-malcriado",
@@ -200,6 +202,7 @@ export const menu: Category[] = [
         description: "Pollo crocante, palta y queso crema, en salsa de mango.",
         detail: "Clásico · 10 cortes",
         price: 22,
+        image: "/img/makis/el-malcriado.webp",
       },
       {
         id: "juane-travieso",
@@ -207,6 +210,7 @@ export const menu: Category[] = [
         description: "Arroz con mishquina, queso crema, pollo sazonado y palta, con mayonesa de sachaculantro y cocona.",
         detail: "Maki frito · 10 cortes",
         price: 22,
+        image: "/img/makis/juane-travieso.webp",
       },
       {
         id: "tunche-loco",
@@ -214,6 +218,7 @@ export const menu: Category[] = [
         description: "Maduros fritos, queso crema, coronada con cecina en salsa spicy.",
         detail: "Clásico · 10 cortes",
         price: 26,
+        image: "/img/makis/tuncheloco.webp",
       },
       {
         id: "makibrasa",
@@ -221,6 +226,7 @@ export const menu: Category[] = [
         description: "Palta, queso crema, pollo tipo brasa con papas al hilo y salsa de pollería.",
         detail: "Clásico · 10 cortes",
         price: 22,
+        image: "/img/makis/makibrasa.webp",
       },
       {
         id: "el-fritunche",
@@ -228,6 +234,7 @@ export const menu: Category[] = [
         description: "Triángulos de makis fritos llenos de palta, queso crema y trucha salmón.",
         detail: "Triangular frito · 4 cortes",
         price: 24,
+        image: "/img/makis/el-fritunche.webp",
       },
       {
         id: "shishiburguer",
@@ -235,6 +242,7 @@ export const menu: Category[] = [
         description: "Relleno de palta, queso crema y trucha marinada.",
         detail: "Porción personal",
         price: 20,
+        image: "/img/makis/sushiburger.webp",
       },
     ],
   },

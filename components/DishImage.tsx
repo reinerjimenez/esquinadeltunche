@@ -12,6 +12,8 @@ type DishImageProps = {
   sizes?: string;
   type?:
     | "desayunos"
+    | "sanguches"
+    | "makis"
     | "poke-bowls"
     | "pescados-mariscos"
     | "de-la-casa"
@@ -28,6 +30,8 @@ type DishImageProps = {
 
 const categoryGradients: Record<string, string> = {
   "desayunos":        "from-amber-900/80 to-yellow-900/60",
+  "sanguches":        "from-amber-950/80 to-orange-900/60",
+  "makis":            "from-red-950/80 to-stone-900/60",
   "poke-bowls":       "from-teal-900/80 to-cyan-900/60",
   "pescados-mariscos":"from-blue-900/80 to-cyan-900/60",
   "de-la-casa":       "from-green-900/80 to-emerald-900/60",
@@ -44,6 +48,8 @@ const categoryGradients: Record<string, string> = {
 
 const categoryIcons: Record<string, string> = {
   "desayunos":        "🌿",
+  "sanguches":        "🥪",
+  "makis":            "🍣",
   "poke-bowls":       "🥗",
   "pescados-mariscos":"🐟",
   "de-la-casa":       "🌿",
