@@ -1,12 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { X, Trash2, ShoppingBag, Send, MapPin, Hash } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import {
+  X,
+  Trash2,
+  ShoppingBag,
+  UtensilsCrossed,
+  FileText,
+  Pencil,
+  Check,
+  ChevronDown,
+  User,
+} from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { buildWhatsAppMessage, getWhatsAppUrl, formatPrice } from "@/lib/whatsapp";
 import { config } from "@/data/config";
 import WhatsAppIcon from "@/components/WhatsAppIcon";
 import { trackEvent } from "@/lib/analytics";
+import { useBottomSheetViewport } from "@/lib/useBottomSheetViewport";
 
 export default function CartSheet() {
   const {
@@ -23,24 +34,66 @@ export default function CartSheet() {
     closeCart,
     totalItems,
     totalPrice,
-    isValid,
   } = useCart();
 
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [sent, setSent] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [showOptionalFields, setShowOptionalFields] = useState(
+    Boolean(state.customerName.trim() || state.comment.trim())
+  );
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { maxHeight, bottomOffset } = useBottomSheetViewport(state.isCartOpen);
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!state.isCartOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeCart();
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [state.isCartOpen, closeCart]);
 
   if (!state.isCartOpen) return null;
 
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
-    if (totalItems === 0) errs.items = "Agrega al menos un plato.";
-    if (!state.orderType) errs.orderType = "Elige el tipo de pedido.";
-    if (state.orderType === "takeaway" && !state.address.trim())
+    let firstErrorElementId = "";
+
+    if (totalItems === 0) {
+      errs.items = "Agrega al menos un plato a tu pedido.";
+    }
+
+    if (!state.orderType) {
+      errs.orderType = "Elige si deseas comer en el restaurante o para llevar.";
+      if (!firstErrorElementId) firstErrorElementId = "cart-step-order-type";
+    }
+
+    if (state.orderType === "takeaway" && !state.address.trim()) {
       errs.address = "Escribe tu dirección de entrega.";
-    if (state.orderType === "dineIn" && !state.tableNumber.trim())
-      errs.tableNumber = "Escribe el número de mesa.";
+      if (!firstErrorElementId) firstErrorElementId = "cart-address";
+    }
+
+    if (state.orderType === "dineIn" && !state.tableNumber.trim()) {
+      errs.tableNumber = "Escribe el número de tu mesa.";
+      if (!firstErrorElementId) firstErrorElementId = "cart-table";
+    }
+
     setFieldErrors(errs);
+
+    if (firstErrorElementId) {
+      window.setTimeout(() => {
+        const el = document.getElementById(firstErrorElementId);
+        el?.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+          el.focus();
+        }
+      }, 100);
+    }
+
     return Object.keys(errs).length === 0;
   };
 
@@ -66,17 +119,20 @@ export default function CartSheet() {
 
   return (
     <>
-      {/* Overlay */}
+      {/* Background Overlay */}
       <div
         className="bottom-sheet-overlay"
         onClick={closeCart}
         aria-hidden="true"
       />
 
-      {/* Sheet */}
+      {/* Sheet Modal */}
       <div
         className="bottom-sheet"
-        style={{ maxHeight: "96dvh" }}
+        style={{
+          maxHeight,
+          bottom: `${bottomOffset}px`,
+        }}
         role="dialog"
         aria-modal="true"
         aria-label="Tu pedido"
@@ -84,277 +140,518 @@ export default function CartSheet() {
       >
         <div className="bottom-sheet-handle" />
 
-        <div className="bottom-sheet-body flex flex-col" style={{ maxHeight: "calc(96dvh - 20px)" }}>
+        <div
+          className="bottom-sheet-body flex flex-col"
+          style={{ maxHeight: `calc(${maxHeight} - 16px)` }}
+        >
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-tunche-border flex-shrink-0">
             <div>
               <h2 className="font-display text-tunche-cream text-lg font-bold">Tu pedido</h2>
               <p className="text-tunche-muted text-xs">
-                {totalItems} {totalItems === 1 ? "producto" : "productos"} · {formatPrice(totalPrice)}
+                {totalItems} {totalItems === 1 ? "plato" : "platos"} · Total: {formatPrice(totalPrice)}
               </p>
             </div>
             <button
               onClick={closeCart}
-              className="w-9 h-9 flex items-center justify-center rounded-full bg-tunche-surface-3 border border-tunche-border text-tunche-muted hover:text-tunche-cream transition-colors"
-              aria-label="Cerrar carrito"
+              className="w-11 h-11 flex items-center justify-center rounded-full bg-tunche-surface-3 border border-tunche-border text-tunche-muted hover:text-tunche-cream transition-colors"
+              aria-label="Cerrar pedido"
             >
               <X size={18} />
             </button>
           </div>
 
-          {/* Scrollable body */}
-          <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-4 flex flex-col gap-5">
-
-            {/* Empty state */}
+          {/* Scrollable body with the 3 steps */}
+          <div
+            ref={scrollContainerRef}
+            className="flex-1 overflow-y-auto overscroll-contain px-5 py-4 flex flex-col gap-6"
+          >
+            {/* Empty State */}
             {totalItems === 0 && (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <ShoppingBag size={40} className="text-tunche-border mb-3" />
-                <p className="text-tunche-cream text-sm font-semibold">Aún no has agregado platos</p>
-                <p className="text-tunche-muted/60 text-xs mt-1">Agrega platos desde la carta</p>
+                <ShoppingBag size={44} className="text-tunche-border mb-3" aria-hidden="true" />
+                <p className="text-tunche-cream text-base font-semibold">Tu pedido está vacío</p>
+                <p className="text-tunche-muted text-sm mt-1 max-w-xs">
+                  Explora la carta y presiona el botón «+» en tus platos preferidos para agregarlos aquí.
+                </p>
+                <button
+                  type="button"
+                  onClick={closeCart}
+                  className="btn-gold mt-5 py-3 px-6 text-sm"
+                >
+                  Ver la carta
+                </button>
                 <a
                   href={`https://wa.me/${config.whatsapp}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-bold text-white shadow-[0_6px_20px_rgba(37,211,102,0.24)] transition-transform duration-150 active:scale-[0.97]"
-                  aria-label="Escribir al restaurante por WhatsApp"
+                  className="mt-4 inline-flex items-center gap-2 text-xs text-tunche-muted hover:text-tunche-cream underline underline-offset-4"
+                  aria-label="Consultar directamente al restaurante por WhatsApp"
                 >
-                  <WhatsAppIcon className="h-5 w-5" />
-                  Escribir al restaurante
+                  <WhatsAppIcon className="h-4 w-4" />
+                  ¿Deseas consultar algo por WhatsApp?
                 </a>
-                {fieldErrors.items && (
-                  <p className="text-red-400 text-xs mt-3" role="alert">{fieldErrors.items}</p>
-                )}
               </div>
             )}
 
-            {/* Items list */}
-            {state.items.map((item) => (
-              <div
-                key={item.cartId}
-                className="flex flex-col gap-2 pb-4 border-b border-tunche-border last:border-0"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-tunche-cream text-sm font-semibold">{item.name}</p>
-                    {item.options.filter((o) => o.choices.length > 0).map((o) => (
-                      <p key={o.optionId} className="text-tunche-muted text-xs">
-                        {o.label}: {o.choices.join(", ")}
-                      </p>
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className="text-tunche-gold text-sm font-bold">
-                      {formatPrice(item.price * item.quantity)}
-                    </span>
-                    <button
-                      onClick={() => removeItem(item.cartId)}
-                      className="w-8 h-8 flex items-center justify-center text-tunche-muted hover:text-red-400 transition-colors rounded-lg hover:bg-red-400/10"
-                      aria-label={`Quitar ${item.name}`}
-                    >
-                      <Trash2 size={15} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Qty stepper */}
-                <div className="flex items-center gap-3">
-                  <div className="qty-stepper" aria-label={`Cantidad de ${item.name}`}>
-                    <button
-                      onClick={() => updateQty(item.cartId, item.quantity - 1)}
-                      aria-label="Reducir"
-                    >−</button>
-                    <span aria-live="polite">{item.quantity}</span>
-                    <button
-                      onClick={() => updateQty(item.cartId, item.quantity + 1)}
-                      aria-label="Aumentar"
-                    >+</button>
-                  </div>
-                  <span className="text-tunche-muted text-xs">
-                    {formatPrice(item.price)} c/u
-                  </span>
-                </div>
-
-                {/* Item note */}
-                <input
-                  type="text"
-                  placeholder="Nota para este plato (opcional)"
-                  value={item.note}
-                  onChange={(e) => updateNote(item.cartId, e.target.value)}
-                  className="tunche-input text-xs py-2"
-                  aria-label={`Nota para ${item.name}`}
-                />
-              </div>
-            ))}
-
-            {/* Order type */}
             {totalItems > 0 && (
               <>
-                <div>
-                  <p className="text-tunche-cream text-sm font-semibold mb-2">
-                    Tipo de pedido <span className="text-red-400">*</span>
-                  </p>
-                  <div className="segmented" role="group" aria-label="Tipo de pedido">
+                {/* ═══════════════════════════════════════════
+                    PASO 1 — REVISA TUS PLATOS
+                    ═══════════════════════════════════════════ */}
+                <section className="cart-step" aria-labelledby="step-1-title">
+                  <header className="cart-step-header">
+                    <span className="cart-step-number" aria-hidden="true">1</span>
+                    <div>
+                      <h3 id="step-1-title" className="cart-step-title">Revisa tus platos</h3>
+                      <p className="cart-step-subtitle">Verifica cantidades o agrega indicaciones especiales si deseas.</p>
+                    </div>
+                  </header>
+
+                  <div className="cart-items-list" role="list">
+                    {state.items.map((item) => {
+                      const isEditingNote = editingNoteId === item.cartId;
+                      const hasNote = Boolean(item.note?.trim());
+
+                      return (
+                        <div
+                          key={item.cartId}
+                          className="cart-item-card"
+                          role="listitem"
+                        >
+                          {/* Dish info & subtotal */}
+                          <div className="cart-item-main">
+                            <div className="cart-item-info">
+                              <h4 className="cart-item-name">{item.name}</h4>
+                              {item.options
+                                .filter((o) => o.choices.length > 0)
+                                .map((o) => (
+                                  <p key={o.optionId} className="cart-item-option">
+                                    <span className="text-tunche-muted/70">{o.label}:</span>{" "}
+                                    {o.choices.join(", ")}
+                                  </p>
+                                ))}
+                              <span className="cart-item-unit-price">
+                                {formatPrice(item.price)} cada uno
+                              </span>
+                            </div>
+
+                            <div className="cart-item-pricing">
+                              <span className="cart-item-subtotal">
+                                {formatPrice(item.price * item.quantity)}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => removeItem(item.cartId)}
+                                className="cart-item-remove-btn"
+                                aria-label={`Quitar ${item.name} del pedido`}
+                                title="Quitar plato"
+                              >
+                                <Trash2 size={16} aria-hidden="true" />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Stepper controls */}
+                          <div className="cart-item-controls">
+                            <div
+                              className="qty-stepper"
+                              aria-label={`Cantidad de ${item.name}`}
+                            >
+                              <button
+                                type="button"
+                                onClick={() => updateQty(item.cartId, item.quantity - 1)}
+                                aria-label={`Quitar una unidad de ${item.name}`}
+                              >
+                                −
+                              </button>
+                              <span aria-live="polite">{item.quantity}</span>
+                              <button
+                                type="button"
+                                onClick={() => updateQty(item.cartId, item.quantity + 1)}
+                                aria-label={`Añadir una unidad de ${item.name}`}
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Secondary note for this dish: collapsed when empty */}
+                          {!hasNote && !isEditingNote && (
+                            <button
+                              type="button"
+                              onClick={() => setEditingNoteId(item.cartId)}
+                              className="cart-note-toggle-btn"
+                              aria-label={`Añadir una indicación para ${item.name}`}
+                            >
+                              <FileText size={15} aria-hidden="true" />
+                              <span>Añadir una indicación (opcional)</span>
+                            </button>
+                          )}
+
+                          {isEditingNote && (
+                            <div className="cart-note-input-wrap">
+                              <input
+                                type="text"
+                                autoFocus
+                                placeholder="Ej: sin cebolla, salsa aparte..."
+                                value={item.note}
+                                onChange={(e) => updateNote(item.cartId, e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") setEditingNoteId(null);
+                                }}
+                                className="tunche-input cart-note-input"
+                                aria-label={`Indicación para ${item.name}`}
+                                maxLength={120}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setEditingNoteId(null)}
+                                className="cart-note-done-btn"
+                                aria-label="Guardar indicación"
+                              >
+                                <Check size={16} aria-hidden="true" />
+                                <span>Listo</span>
+                              </button>
+                            </div>
+                          )}
+
+                          {hasNote && !isEditingNote && (
+                            <div className="cart-note-badge">
+                              <div className="cart-note-badge-content">
+                                <FileText size={14} className="text-tunche-gold flex-shrink-0" aria-hidden="true" />
+                                <span className="cart-note-text">
+                                  <strong className="text-tunche-cream">Nota:</strong> {item.note}
+                                </span>
+                              </div>
+                              <div className="cart-note-badge-actions">
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingNoteId(item.cartId)}
+                                  className="cart-note-action-btn"
+                                  aria-label={`Editar indicación de ${item.name}`}
+                                >
+                                  <Pencil size={13} aria-hidden="true" />
+                                  <span>Editar</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => updateNote(item.cartId, "")}
+                                  className="cart-note-action-btn text-red-400"
+                                  aria-label={`Borrar indicación de ${item.name}`}
+                                >
+                                  <X size={14} aria-hidden="true" />
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+
+                {/* ═══════════════════════════════════════════
+                    PASO 2 — ¿CÓMO QUIERES TU PEDIDO?
+                    ═══════════════════════════════════════════ */}
+                <section className="cart-step" aria-labelledby="step-2-title" id="cart-step-order-type">
+                  <header className="cart-step-header">
+                    <span className="cart-step-number" aria-hidden="true">2</span>
+                    <div>
+                      <h3 id="step-2-title" className="cart-step-title">¿Cómo quieres tu pedido?</h3>
+                      <p className="cart-step-subtitle">Elige una de las dos opciones para despachar tu comida.</p>
+                    </div>
+                  </header>
+
+                  {/* 2 Big Clear Cards */}
+                  <div
+                    className="cart-order-types"
+                    role="radiogroup"
+                    aria-label="Modalidad de pedido"
+                  >
                     <button
-                      onClick={() => { setOrderType("dineIn"); setFieldErrors((e) => ({ ...e, orderType: "" })); }}
-                      className={`segmented-option ${state.orderType === "dineIn" ? "active" : ""}`}
-                      aria-pressed={state.orderType === "dineIn"}
+                      type="button"
+                      role="radio"
+                      aria-checked={state.orderType === "dineIn"}
+                      onClick={() => {
+                        setOrderType("dineIn");
+                        setFieldErrors((err) => ({ ...err, orderType: "" }));
+                      }}
+                      className={`cart-order-type-card ${state.orderType === "dineIn" ? "is-selected" : ""
+                        }`}
                       id="order-type-dine-in"
                     >
-                      <Hash size={15} aria-hidden="true" />
-                      En el restaurante
+                      <div className="cart-order-type-icon">
+                        <UtensilsCrossed size={20} aria-hidden="true" />
+                      </div>
+                      <div className="cart-order-type-copy">
+                        <span className="cart-order-type-name">Comer en el restaurante</span>
+                        <span className="cart-order-type-desc">Servido en mesa del local</span>
+                      </div>
+                      <div className="cart-order-type-check" aria-hidden="true">
+                        {state.orderType === "dineIn" && <Check size={18} strokeWidth={3} />}
+                      </div>
                     </button>
+
                     <button
-                      onClick={() => { setOrderType("takeaway"); setFieldErrors((e) => ({ ...e, orderType: "" })); }}
-                      className={`segmented-option ${state.orderType === "takeaway" ? "active" : ""}`}
-                      aria-pressed={state.orderType === "takeaway"}
+                      type="button"
+                      role="radio"
+                      aria-checked={state.orderType === "takeaway"}
+                      onClick={() => {
+                        setOrderType("takeaway");
+                        setFieldErrors((err) => ({ ...err, orderType: "" }));
+                      }}
+                      className={`cart-order-type-card ${state.orderType === "takeaway" ? "is-selected" : ""
+                        }`}
                       id="order-type-takeaway"
                     >
-                      <MapPin size={15} aria-hidden="true" />
-                      Para llevar
+                      <div className="cart-order-type-icon">
+                        <ShoppingBag size={20} aria-hidden="true" />
+                      </div>
+                      <div className="cart-order-type-copy">
+                        <span className="cart-order-type-name">Para llevar</span>
+                        <span className="cart-order-type-desc">Delivery o retiro en tienda</span>
+                      </div>
+                      <div className="cart-order-type-check" aria-hidden="true">
+                        {state.orderType === "takeaway" && <Check size={18} strokeWidth={3} />}
+                      </div>
                     </button>
                   </div>
+
                   {fieldErrors.orderType && (
-                    <p className="text-red-400 text-xs mt-1" role="alert">{fieldErrors.orderType}</p>
+                    <p className="cart-error-msg" role="alert">
+                      {fieldErrors.orderType}
+                    </p>
                   )}
-                </div>
 
-                {/* Conditional fields */}
-                {state.orderType === "dineIn" && (
-                  <div>
-                    <label htmlFor="cart-table" className="text-tunche-cream text-sm font-semibold block mb-2">
-                      Número de mesa <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      id="cart-table"
-                      type="number"
-                      inputMode="numeric"
-                      min={1}
-                      max={config.tableCount || undefined}
-                      placeholder="Ej: 5"
-                      value={state.tableNumber}
-                      onChange={(e) => { setTable(e.target.value); setFieldErrors((err) => ({ ...err, tableNumber: "" })); }}
-                      className={`tunche-input ${fieldErrors.tableNumber ? "error" : ""}`}
-                      aria-describedby={fieldErrors.tableNumber ? "table-error" : undefined}
-                    />
-                    {fieldErrors.tableNumber && (
-                      <p id="table-error" className="text-red-400 text-xs mt-1" role="alert">{fieldErrors.tableNumber}</p>
+                  {/* Conditional Required Fields */}
+                  {state.orderType === "dineIn" && (
+                    <div className="cart-required-field" id="cart-field-table">
+                      <label htmlFor="cart-table" className="cart-label">
+                        <span>Número de mesa</span>
+                        <span className="cart-required-badge">Obligatorio</span>
+                      </label>
+                      <input
+                        id="cart-table"
+                        type="number"
+                        inputMode="numeric"
+                        min={1}
+                        max={config.tableCount || undefined}
+                        placeholder="Ej: 4"
+                        value={state.tableNumber}
+                        onChange={(e) => {
+                          setTable(e.target.value);
+                          setFieldErrors((err) => ({ ...err, tableNumber: "" }));
+                        }}
+                        className={`tunche-input ${fieldErrors.tableNumber ? "error" : ""}`}
+                        aria-describedby={fieldErrors.tableNumber ? "table-error" : undefined}
+                      />
+                      {fieldErrors.tableNumber && (
+                        <p id="table-error" className="cart-error-msg" role="alert">
+                          {fieldErrors.tableNumber}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {state.orderType === "takeaway" && (
+                    <div className="cart-required-field" id="cart-field-address">
+                      <label htmlFor="cart-address" className="cart-label">
+                        <span>Dirección de entrega</span>
+                        <span className="cart-required-badge">Obligatorio</span>
+                      </label>
+                      <textarea
+                        id="cart-address"
+                        placeholder="Calle, número, urbanización o referencia..."
+                        value={state.address}
+                        onChange={(e) => {
+                          setAddress(e.target.value);
+                          setFieldErrors((err) => ({ ...err, address: "" }));
+                        }}
+                        className={`tunche-input resize-none ${fieldErrors.address ? "error" : ""}`}
+                        rows={2}
+                        aria-describedby={fieldErrors.address ? "address-error" : undefined}
+                      />
+                      {config.takeawayNote && (
+                        <p className="text-tunche-muted text-xs mt-1">{config.takeawayNote}</p>
+                      )}
+                      {fieldErrors.address && (
+                        <p id="address-error" className="cart-error-msg" role="alert">
+                          {fieldErrors.address}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Secondary Optional Fields (Name & Comment) */}
+                  <div className="cart-optional-section">
+                    <button
+                      type="button"
+                      onClick={() => setShowOptionalFields(!showOptionalFields)}
+                      className="cart-optional-toggle"
+                      aria-expanded={showOptionalFields}
+                    >
+                      <span className="cart-optional-toggle-text">
+                        <User size={16} aria-hidden="true" />
+                        <span>Nombre y comentarios <span className="text-tunche-muted text-xs font-normal">(opcional)</span></span>
+                      </span>
+                      <ChevronDown
+                        size={16}
+                        className={`transition-transform duration-200 ${showOptionalFields ? "rotate-180" : ""
+                          }`}
+                        aria-hidden="true"
+                      />
+                    </button>
+
+                    {showOptionalFields && (
+                      <div className="cart-optional-fields">
+                        <div>
+                          <label htmlFor="cart-name" className="cart-sublabel">
+                            Tu nombre <span className="text-tunche-muted font-normal">(opcional)</span>
+                          </label>
+                          <input
+                            id="cart-name"
+                            type="text"
+                            placeholder="¿Cómo te llamas?"
+                            value={state.customerName}
+                            onChange={(e) => setName(e.target.value)}
+                            className="tunche-input"
+                          />
+                        </div>
+
+                        <div>
+                          <label htmlFor="cart-comment" className="cart-sublabel">
+                            Comentario general <span className="text-tunche-muted font-normal">(opcional)</span>
+                          </label>
+                          <textarea
+                            id="cart-comment"
+                            placeholder="Alergias, cubiertos, indicaciones generales..."
+                            value={state.comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            className="tunche-input resize-none"
+                            rows={2}
+                          />
+                        </div>
+                      </div>
                     )}
                   </div>
-                )}
+                </section>
 
-                {state.orderType === "takeaway" && (
-                  <div>
-                    <label htmlFor="cart-address" className="text-tunche-cream text-sm font-semibold block mb-2">
-                      Dirección de entrega <span className="text-red-400">*</span>
-                    </label>
-                    <textarea
-                      id="cart-address"
-                      placeholder="Calle, número y referencia…"
-                      value={state.address}
-                      onChange={(e) => { setAddress(e.target.value); setFieldErrors((err) => ({ ...err, address: "" })); }}
-                      className={`tunche-input resize-none ${fieldErrors.address ? "error" : ""}`}
-                      rows={2}
-                      aria-describedby={fieldErrors.address ? "address-error" : undefined}
-                    />
-                    {config.takeawayNote && (
-                      <p className="text-tunche-muted text-xs mt-1">{config.takeawayNote}</p>
-                    )}
-                    {fieldErrors.address && (
-                      <p id="address-error" className="text-red-400 text-xs mt-1" role="alert">{fieldErrors.address}</p>
-                    )}
+                {/* ═══════════════════════════════════════════
+                    PASO 3 — CONFIRMA TU PEDIDO
+                    ═══════════════════════════════════════════ */}
+                <section className="cart-step" aria-labelledby="step-3-title">
+                  <header className="cart-step-header">
+                    <span className="cart-step-number" aria-hidden="true">3</span>
+                    <div>
+                      <h3 id="step-3-title" className="cart-step-title">Confirma tu pedido</h3>
+                      <p className="cart-step-subtitle">Revisa el total estimado antes de enviarlo por WhatsApp.</p>
+                    </div>
+                  </header>
+
+                  <div className="cart-summary-box">
+                    <div className="cart-summary-row">
+                      <span className="text-tunche-cream text-sm">
+                        Platos seleccionados ({totalItems}):
+                      </span>
+                      <span className="text-tunche-cream font-semibold">
+                        {formatPrice(totalPrice)}
+                      </span>
+                    </div>
+
+                    <div className="cart-summary-row cart-summary-total">
+                      <span className="text-tunche-cream font-bold text-base">Total estimado</span>
+                      <span className="font-display text-tunche-gold-bright text-2xl font-bold">
+                        {formatPrice(totalPrice)}
+                      </span>
+                    </div>
+
+                    {/* Status feedback */}
+                    <div className="cart-validation-status">
+                      {!state.orderType ? (
+                        <p className="cart-status-hint text-amber-300">
+                          ⚠️ <strong>Falta completar:</strong> Elige en el <strong>Paso 2</strong> si comerás en el restaurante o es para llevar.
+                        </p>
+                      ) : state.orderType === "dineIn" && !state.tableNumber.trim() ? (
+                        <p className="cart-status-hint text-amber-300">
+                          ⚠️ <strong>Falta completar:</strong> Ingresa el número de tu mesa en el <strong>Paso 2</strong>.
+                        </p>
+                      ) : state.orderType === "takeaway" && !state.address.trim() ? (
+                        <p className="cart-status-hint text-amber-300">
+                          ⚠️ <strong>Falta completar:</strong> Ingresa la dirección de entrega en el <strong>Paso 2</strong>.
+                        </p>
+                      ) : (
+                        <p className="cart-status-hint text-emerald-400">
+                          ✓ <strong>¡Todo listo!</strong> Presiona el botón verde de abajo para enviar tu orden por WhatsApp.
+                        </p>
+                      )}
+                    </div>
                   </div>
-                )}
-
-                {/* Optional fields */}
-                <div>
-                  <label htmlFor="cart-name" className="text-tunche-cream text-sm font-semibold block mb-2">
-                    Tu nombre <span className="text-tunche-muted font-normal">(opcional)</span>
-                  </label>
-                  <input
-                    id="cart-name"
-                    type="text"
-                    placeholder="¿Cómo te llamas?"
-                    value={state.customerName}
-                    onChange={(e) => setName(e.target.value)}
-                    className="tunche-input"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="cart-comment" className="text-tunche-cream text-sm font-semibold block mb-2">
-                    Comentario general <span className="text-tunche-muted font-normal">(opcional)</span>
-                  </label>
-                  <textarea
-                    id="cart-comment"
-                    placeholder="Alergias, indicaciones especiales…"
-                    value={state.comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    className="tunche-input resize-none"
-                    rows={2}
-                  />
-                </div>
-
-                {/* Total */}
-                <div className="flex items-center justify-between py-3 border-t border-tunche-border">
-                  <span className="text-tunche-cream font-semibold">Total estimado</span>
-                  <span className="font-display text-tunche-gold text-xl font-bold">{formatPrice(totalPrice)}</span>
-                </div>
+                </section>
               </>
             )}
 
-            {/* Sent confirmation */}
+            {/* Sent confirmation banner */}
             {sent && (
               <div className="bg-green-900/30 border border-green-700/50 rounded-xl px-4 py-3 text-center">
-                <p className="text-green-400 text-sm font-semibold">✓ Pedido enviado</p>
-                <p className="text-green-400/70 text-xs mt-0.5">Revisa WhatsApp y pulsa enviar para confirmar.</p>
+                <p className="text-green-400 text-sm font-semibold">✓ Pedido preparado</p>
+                <p className="text-green-400/80 text-xs mt-0.5">
+                  Se abrió WhatsApp con tu mensaje listo. Presiona enviar en WhatsApp para confirmar tu orden con el restaurante.
+                </p>
               </div>
             )}
           </div>
 
-          {/* Actions footer */}
+          {/* Sticky Actions Footer */}
           {totalItems > 0 && (
-            <div className="px-5 pb-6 pt-3 border-t border-tunche-border flex flex-col gap-3 flex-shrink-0">
+            <footer className="cart-sheet-footer">
               <button
+                type="button"
                 onClick={handleSend}
-                disabled={!isValid}
-                className={`btn-gold w-full py-4 text-base flex items-center justify-center gap-2 ${
-                  !isValid ? "opacity-40 cursor-not-allowed hover:transform-none hover:shadow-none" : ""
-                }`}
-                aria-disabled={!isValid}
+                className="btn-gold cart-submit-btn"
                 id="cart-send-btn"
-                aria-label="Enviar pedido por WhatsApp"
+                aria-label={`Enviar pedido por WhatsApp, total ${formatPrice(totalPrice)}`}
               >
-                <Send size={18} aria-hidden="true" />
-                Enviar pedido por WhatsApp
+                <WhatsAppIcon className="w-5 h-5 flex-shrink-0" />
+                <span>Enviar pedido por WhatsApp</span>
+                <span className="cart-submit-total">· {formatPrice(totalPrice)}</span>
               </button>
 
               {!showClearConfirm ? (
                 <button
+                  type="button"
                   onClick={() => setShowClearConfirm(true)}
-                  className="btn-ghost w-full py-2 text-sm text-red-400 border-red-900/40 hover:bg-red-900/20"
-                  aria-label="Vaciar pedido"
+                  className="cart-clear-btn"
+                  aria-label="Vaciar todo el pedido"
                 >
                   <Trash2 size={15} aria-hidden="true" />
-                  Vaciar pedido
+                  <span>Vaciar pedido</span>
                 </button>
               ) : (
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setShowClearConfirm(false)}
-                    className="btn-ghost flex-1 py-2 text-sm"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    onClick={handleClearConfirm}
-                    className="flex-1 py-2 text-sm rounded-full bg-red-900/50 border border-red-700/50 text-red-300 font-semibold hover:bg-red-900/80 transition-colors"
-                    aria-label="Confirmar vaciar pedido"
-                  >
-                    Sí, vaciar
-                  </button>
+                <div className="cart-clear-confirm-wrap">
+                  <span className="text-xs text-tunche-muted">
+                    ¿Deseas quitar todos los platos del pedido?
+                  </span>
+                  <div className="flex gap-2 w-full">
+                    <button
+                      type="button"
+                      onClick={() => setShowClearConfirm(false)}
+                      className="btn-ghost flex-1 py-2 text-sm"
+                    >
+                      Conservar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleClearConfirm}
+                      className="btn-danger flex-1 py-2 text-sm"
+                      aria-label="Confirmar vaciar pedido"
+                    >
+                      Sí, vaciar
+                    </button>
+                  </div>
                 </div>
               )}
-            </div>
+            </footer>
           )}
         </div>
       </div>

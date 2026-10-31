@@ -49,7 +49,7 @@ export default function CartButton({ isHidden = false }: CartButtonProps) {
     };
   }, []);
 
-  const shouldHide = isHidden || state.isCartOpen || isCatalogVisibleOnMobile;
+  const shouldHide = isHidden || state.isCartOpen || (isCatalogVisibleOnMobile && totalItems === 0);
 
   return (
     <button

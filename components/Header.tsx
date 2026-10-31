@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Search, ShoppingBag, X } from "lucide-react";
 import { useCart } from "@/lib/cart";
+import { formatPrice } from "@/lib/whatsapp";
 
 type HeaderProps = {
   searchQuery: string;
@@ -39,7 +40,7 @@ export default function Header({ searchQuery, onSearch }: HeaderProps) {
               placeholder="Buscar platos..."
               value={searchQuery}
               onChange={(e) => onSearch(e.target.value)}
-              className="flex-1 bg-transparent border-none outline-none text-tunche-cream text-sm placeholder:text-tunche-muted"
+              className="flex-1 bg-transparent border-none outline-none text-tunche-cream text-base placeholder:text-tunche-muted"
               aria-label="Buscar platos en el menú"
               autoFocus
             />
@@ -71,7 +72,9 @@ export default function Header({ searchQuery, onSearch }: HeaderProps) {
         <button
           onClick={openCart}
           className="header-icon-button relative flex-shrink-0"
-          aria-label={`Carrito con ${totalItems} productos, total S/ ${totalPrice.toFixed(2)}`}
+          aria-label={`Ver pedido con ${totalItems} ${
+            totalItems === 1 ? "plato" : "platos"
+          }, total ${formatPrice(totalPrice)}`}
           id="header-cart-btn"
         >
           <ShoppingBag size={18} />

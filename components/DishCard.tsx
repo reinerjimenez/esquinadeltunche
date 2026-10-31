@@ -85,7 +85,11 @@ export default function DishCard({ dish, categoryId, onClick }: DishCardProps) {
     <button
       onClick={handleAdd}
       className={`dish-add ${adding ? "is-adding" : ""}`}
-      aria-label={hasChoices ? `Elegir opción para ${dish.name}` : `Agregar ${dish.name} al pedido`}
+      aria-label={
+        hasChoices
+          ? `Personalizar y elegir opciones para ${dish.name}`
+          : `Agregar ${dish.name} al pedido${dish.price ? ` por ${formatPrice(dish.price)}` : ""}`
+      }
       id={`add-btn-${dish.id}`}
       type="button"
     >
@@ -103,7 +107,7 @@ export default function DishCard({ dish, categoryId, onClick }: DishCardProps) {
       <span aria-live="polite">{simpleCartItem.quantity}</span>
       <button
         onClick={handleIncrement}
-        aria-label={`Agregar una unidad más de ${dish.name}`}
+        aria-label={`Añadir una unidad de ${dish.name}`}
         type="button"
       >
         +
