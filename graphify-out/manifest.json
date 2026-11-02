@@ -1,0 +1,428 @@
+{
+  ".agents/skills/ui-ux-pro-max/scripts/core.py": {
+    "mtime": 1781924348.0,
+    "seen": 1793641958.741457,
+    "ast_hash": "3df4734a785963a8242a56c1b926adfd",
+    "semantic_hash": ""
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/design_system.py": {
+    "mtime": 1781924348.0,
+    "seen": 1793641958.7414665,
+    "ast_hash": "08f84d04608a19049c90fc2b1ef314f9",
+    "semantic_hash": ""
+  },
+  ".agents/skills/ui-ux-pro-max/scripts/search.py": {
+    "mtime": 1781924348.0,
+    "seen": 1793641958.7414708,
+    "ast_hash": "8c7e35426fe8f6f3ed91e9dce0ed7af1",
+    "semantic_hash": ""
+  },
+  "app/layout.tsx": {
+    "mtime": 1793641764.0,
+    "seen": 1793641958.7414734,
+    "ast_hash": "32d7876ca132c0cb2fe66f710f6e244c",
+    "semantic_hash": ""
+  },
+  "app/page.tsx": {
+    "mtime": 1792679424.0,
+    "seen": 1793641958.741476,
+    "ast_hash": "949c043ac47df664d6ae4ae6f84f0d24",
+    "semantic_hash": ""
+  },
+  "components/CartButton.tsx": {
+    "mtime": 1793463904.0,
+    "seen": 1793641958.7414784,
+    "ast_hash": "8acc33402815abb072db239397dfba9e",
+    "semantic_hash": ""
+  },
+  "components/CartSheet.tsx": {
+    "mtime": 1793463906.0,
+    "seen": 1793641958.7414806,
+    "ast_hash": "144da486f2fcd58e60ba8bfd6a14669d",
+    "semantic_hash": ""
+  },
+  "components/CategoryNav.tsx": {
+    "mtime": 1792603562.0,
+    "seen": 1793641958.7414825,
+    "ast_hash": "b7dce66a33672264a37c825957482f4a",
+    "semantic_hash": ""
+  },
+  "components/CategorySheet.tsx": {
+    "mtime": 1792603538.0,
+    "seen": 1793641958.7414846,
+    "ast_hash": "02e99739c0501e9be211c84610bb1f6e",
+    "semantic_hash": ""
+  },
+  "components/DishCard.tsx": {
+    "mtime": 1793463904.0,
+    "seen": 1793641958.7414865,
+    "ast_hash": "17df63fe474f360beb928193bae6e35f",
+    "semantic_hash": ""
+  },
+  "components/DishImage.tsx": {
+    "mtime": 1793461534.0,
+    "seen": 1793641958.7414887,
+    "ast_hash": "f5b8c257d9da39c6039470b7edb7494b",
+    "semantic_hash": ""
+  },
+  "components/DishSheet.tsx": {
+    "mtime": 1793463904.0,
+    "seen": 1793641958.7414908,
+    "ast_hash": "f22395da362969fb72a26eb20a9d4dc5",
+    "semantic_hash": ""
+  },
+  "components/FeaturedCarousel.tsx": {
+    "mtime": 1792593024.0,
+    "seen": 1793641958.741493,
+    "ast_hash": "fcb385ada3cf07e8debc1e2534fb3e5b",
+    "semantic_hash": ""
+  },
+  "components/Footer.tsx": {
+    "mtime": 1792162996.0,
+    "seen": 1793641958.741495,
+    "ast_hash": "81315352eb09e9719ea1bdbae8cfae55",
+    "semantic_hash": ""
+  },
+  "components/Header.tsx": {
+    "mtime": 1793463906.0,
+    "seen": 1793641958.7414968,
+    "ast_hash": "da831a831db6281eaf8cba39c3ce0929",
+    "semantic_hash": ""
+  },
+  "components/HeroSection.tsx": {
+    "mtime": 1792603632.0,
+    "seen": 1793641958.7414987,
+    "ast_hash": "28b5268fa87b664f3a773e8fba0cc5e0",
+    "semantic_hash": ""
+  },
+  "components/MapSection.tsx": {
+    "mtime": 1792594618.0,
+    "seen": 1793641958.7415009,
+    "ast_hash": "ec31b878f7a517c6cb47b6975d4ed761",
+    "semantic_hash": ""
+  },
+  "components/MenuSection.tsx": {
+    "mtime": 1792603578.0,
+    "seen": 1793641958.741503,
+    "ast_hash": "5e83b789c4cdd875b668d80c683019ad",
+    "semantic_hash": ""
+  },
+  "components/ShareBlock.tsx": {
+    "mtime": 1792679520.0,
+    "seen": 1793641958.741505,
+    "ast_hash": "5b6ec032878148836cf040fce107f6bc",
+    "semantic_hash": ""
+  },
+  "components/Toast.tsx": {
+    "mtime": 1792593038.0,
+    "seen": 1793641958.7415068,
+    "ast_hash": "f38644f2e9d36c2b86a1d0b0ac3618ee",
+    "semantic_hash": ""
+  },
+  "components/WhatsAppIcon.tsx": {
+    "mtime": 1791915088.0,
+    "seen": 1793641958.7415092,
+    "ast_hash": "795a457c0e88e3ee1e2ac6b217f2d7c0",
+    "semantic_hash": ""
+  },
+  "data/config.ts": {
+    "mtime": 1792679424.0,
+    "seen": 1793641958.7415109,
+    "ast_hash": "3ef7ddce4fee8ba45cc405db243e83c6",
+    "semantic_hash": ""
+  },
+  "data/menu.ts": {
+    "mtime": 1793461520.0,
+    "seen": 1793641958.7415137,
+    "ast_hash": "b9624214ecd337214f919b2a01d0309a",
+    "semantic_hash": ""
+  },
+  "eslint.config.mjs": {
+    "mtime": 1792680096.0,
+    "seen": 1793641958.7415156,
+    "ast_hash": "9d6242f9e5a555d085b9a537276c7373",
+    "semantic_hash": ""
+  },
+  "lib/analytics.ts": {
+    "mtime": 1792679430.0,
+    "seen": 1793641958.7415173,
+    "ast_hash": "4ee575741df7c2ea79429a6d498e2941",
+    "semantic_hash": ""
+  },
+  "lib/cart.tsx": {
+    "mtime": 1792679538.0,
+    "seen": 1793641958.7415195,
+    "ast_hash": "37febf790d255d1fb82de07dcf04ee77",
+    "semantic_hash": ""
+  },
+  "lib/useBottomSheetViewport.ts": {
+    "mtime": 1793463906.0,
+    "seen": 1793641958.7415214,
+    "ast_hash": "1a621d261b95bf869a5cda8e07dfd796",
+    "semantic_hash": ""
+  },
+  "lib/whatsapp.ts": {
+    "mtime": 1792679428.0,
+    "seen": 1793641958.7415233,
+    "ast_hash": "a6c38adfaf20a488b5344a5d3925b0cc",
+    "semantic_hash": ""
+  },
+  "next.config.ts": {
+    "mtime": 1792513110.0,
+    "seen": 1793641958.7415252,
+    "ast_hash": "58e4f2a44cc9c9912c96fdcfa32566a9",
+    "semantic_hash": ""
+  },
+  "package.json": {
+    "mtime": 1792514942.0,
+    "seen": 1793641958.741527,
+    "ast_hash": "42c277bb4aaeca45dd87194467bd712c",
+    "semantic_hash": ""
+  },
+  "postcss.config.mjs": {
+    "mtime": 1791904370.0,
+    "seen": 1793641958.741529,
+    "ast_hash": "239f3ebf717465dc636818a1a619398d",
+    "semantic_hash": ""
+  },
+  "public/manifest.json": {
+    "mtime": 1791903538.0,
+    "seen": 1793641958.741531,
+    "ast_hash": "2ee49df5e63ce3408afd8b88c3a75f0f",
+    "semantic_hash": ""
+  },
+  "scripts/patch-readlink.cjs": {
+    "mtime": 1792515058.0,
+    "seen": 1793641958.7415326,
+    "ast_hash": "6d752c9ee65bff2fe9c3523bac304054",
+    "semantic_hash": ""
+  },
+  "scripts/qa-runner.mjs": {
+    "mtime": 1792604708.0,
+    "seen": 1793641958.7415347,
+    "ast_hash": "22cc9b8ff0dafffed190d0dad11df9f9",
+    "semantic_hash": ""
+  },
+  "tsconfig.json": {
+    "mtime": 1791901722.0,
+    "seen": 1793641958.741537,
+    "ast_hash": "02fc19ad21338c2ab820a70136310db4",
+    "semantic_hash": ""
+  },
+  ".agents/skills/emil-design-eng/SKILL.md": {
+    "mtime": 1781925196.0,
+    "seen": 1793641958.7415388,
+    "ast_hash": "1c9207b371c22bd1dc336b1349edeebf",
+    "semantic_hash": ""
+  },
+  ".agents/skills/ui-ux-pro-max/SKILL.md": {
+    "mtime": 1781924624.0,
+    "seen": 1793641958.741541,
+    "ast_hash": "b33a6a2bede0b68b6919ec33248476f8",
+    "semantic_hash": ""
+  },
+  "AGENTS.md": {
+    "mtime": 1791904416.0,
+    "seen": 1793641958.7415426,
+    "ast_hash": "c98dbebb744eadc1acc4b9f58bfe0f42",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1792167020.0,
+    "seen": 1793641958.7415445,
+    "ast_hash": "d17fe423a9fe2f63c32f4cef64fcf680",
+    "semantic_hash": ""
+  },
+  "artifacts/category-panel-mobile.png": {
+    "mtime": 1792596270.0,
+    "seen": 1793641958.7415464,
+    "ast_hash": "d7719b7f8bca72ca3b504308b18b7691",
+    "semantic_hash": ""
+  },
+  "artifacts/category-selector-mobile.png": {
+    "mtime": 1792596270.0,
+    "seen": 1793641958.7415483,
+    "ast_hash": "b6d65cfa8cabeebdc50552faba55e6b0",
+    "semantic_hash": ""
+  },
+  "public/file.svg": {
+    "mtime": 1791901698.0,
+    "seen": 1793641958.74155,
+    "ast_hash": "d09f95206c3fa0bb9bd9fefabfd0ea71",
+    "semantic_hash": ""
+  },
+  "public/globe.svg": {
+    "mtime": 1791901698.0,
+    "seen": 1793641958.7415524,
+    "ast_hash": "2aaafa6a49b6563925fe440891e32717",
+    "semantic_hash": ""
+  },
+  "public/img/dishes/ceviche-del-tunche.jpg": {
+    "mtime": 1791901758.0,
+    "seen": 1793641958.741556,
+    "ast_hash": "bf2da05f8d9b0ddac9d0e1167225dadf",
+    "semantic_hash": ""
+  },
+  "public/img/dishes/ceviche-del-tunche.webp": {
+    "mtime": 1791901758.0,
+    "seen": 1793641958.7415578,
+    "ast_hash": "bf2da05f8d9b0ddac9d0e1167225dadf",
+    "semantic_hash": ""
+  },
+  "public/img/dishes/chaufa-del-tunche.jpg": {
+    "mtime": 1791901786.0,
+    "seen": 1793641958.7415597,
+    "ast_hash": "702a72c8c369fc733c38c468fd79c78e",
+    "semantic_hash": ""
+  },
+  "public/img/dishes/chaufa-del-tunche.webp": {
+    "mtime": 1791901786.0,
+    "seen": 1793641958.7415617,
+    "ast_hash": "702a72c8c369fc733c38c468fd79c78e",
+    "semantic_hash": ""
+  },
+  "public/img/dishes/combito-del-tunche.jpg": {
+    "mtime": 1791901770.0,
+    "seen": 1793641958.7415636,
+    "ast_hash": "ce97bd360a7c7c8065d80cb9aa07b7bc",
+    "semantic_hash": ""
+  },
+  "public/img/dishes/combito-del-tunche.webp": {
+    "mtime": 1791901770.0,
+    "seen": 1793641958.7415657,
+    "ast_hash": "ce97bd360a7c7c8065d80cb9aa07b7bc",
+    "semantic_hash": ""
+  },
+  "public/img/dishes/costillas-maracuya.jpg": {
+    "mtime": 1791901840.0,
+    "seen": 1793641958.7415674,
+    "ast_hash": "cab262e4e8882268e53eae6a12414f9b",
+    "semantic_hash": ""
+  },
+  "public/img/dishes/costillas-maracuya.webp": {
+    "mtime": 1791901840.0,
+    "seen": 1793641958.7415693,
+    "ast_hash": "cab262e4e8882268e53eae6a12414f9b",
+    "semantic_hash": ""
+  },
+  "public/img/dishes/jalea-mixta.jpg": {
+    "mtime": 1791901852.0,
+    "seen": 1793641958.7415714,
+    "ast_hash": "3396f692404a22c58c8108e5a9206f73",
+    "semantic_hash": ""
+  },
+  "public/img/dishes/jalea-mixta.webp": {
+    "mtime": 1791901852.0,
+    "seen": 1793641958.741573,
+    "ast_hash": "3396f692404a22c58c8108e5a9206f73",
+    "semantic_hash": ""
+  },
+  "public/img/dishes/saltado-amazonico.jpg": {
+    "mtime": 1791901828.0,
+    "seen": 1793641958.741575,
+    "ast_hash": "87ef95c906a82ebc1d4432a8c63fa007",
+    "semantic_hash": ""
+  },
+  "public/img/dishes/saltado-amazonico.webp": {
+    "mtime": 1791901828.0,
+    "seen": 1793641958.741577,
+    "ast_hash": "87ef95c906a82ebc1d4432a8c63fa007",
+    "semantic_hash": ""
+  },
+  "public/img/hero-bg.jpg": {
+    "mtime": 1791901770.0,
+    "seen": 1793641958.741579,
+    "ast_hash": "ce97bd360a7c7c8065d80cb9aa07b7bc",
+    "semantic_hash": ""
+  },
+  "public/img/hero-bg.webp": {
+    "mtime": 1791901770.0,
+    "seen": 1793641958.741581,
+    "ast_hash": "ce97bd360a7c7c8065d80cb9aa07b7bc",
+    "semantic_hash": ""
+  },
+  "public/img/logo.webp": {
+    "mtime": 1791901352.0,
+    "seen": 1793641958.741583,
+    "ast_hash": "bfc2270c4b50886a20b37d446804eb93",
+    "semantic_hash": ""
+  },
+  "public/img/makis/acevichado-tunche.webp": {
+    "mtime": 1793459978.0,
+    "seen": 1793641958.7415848,
+    "ast_hash": "b9370e460b6e6daa688e1ff02d70e14e",
+    "semantic_hash": ""
+  },
+  "public/img/makis/el-fritunche.webp": {
+    "mtime": 1793459650.0,
+    "seen": 1793641958.741587,
+    "ast_hash": "13e94f6014167b53b898d2f046695dae",
+    "semantic_hash": ""
+  },
+  "public/img/makis/el-malcriado.webp": {
+    "mtime": 1793459952.0,
+    "seen": 1793641958.741589,
+    "ast_hash": "62c956c41b4463919f7745d7819429cd",
+    "semantic_hash": ""
+  },
+  "public/img/makis/furay-salvaje.webp": {
+    "mtime": 1793459702.0,
+    "seen": 1793641958.7415907,
+    "ast_hash": "8b75c4c47b712c61673d436257fcf11f",
+    "semantic_hash": ""
+  },
+  "public/img/makis/juane-travieso.webp": {
+    "mtime": 1793459754.0,
+    "seen": 1793641958.7415926,
+    "ast_hash": "8f37c1bd74a74dca375d38b1522d7db6",
+    "semantic_hash": ""
+  },
+  "public/img/makis/makibrasa.webp": {
+    "mtime": 1793459874.0,
+    "seen": 1793641958.7415946,
+    "ast_hash": "2e5bf069164faff7686a1822b00b73a8",
+    "semantic_hash": ""
+  },
+  "public/img/makis/sushiburger.webp": {
+    "mtime": 1793459812.0,
+    "seen": 1793641958.7415967,
+    "ast_hash": "70bf042c8198d01225a40c8f897ef181",
+    "semantic_hash": ""
+  },
+  "public/img/makis/tuncheloco.webp": {
+    "mtime": 1793459788.0,
+    "seen": 1793641958.7415984,
+    "ast_hash": "d244079b64e7e1d2010971d511681488",
+    "semantic_hash": ""
+  },
+  "public/next.svg": {
+    "mtime": 1791901698.0,
+    "seen": 1793641958.7416005,
+    "ast_hash": "8e061864f388b47f33a1c3780831193e",
+    "semantic_hash": ""
+  },
+  "public/og/la-esquina-del-tunche-share.jpg": {
+    "mtime": 1793641756.0,
+    "seen": 1793641958.7416027,
+    "ast_hash": "2c2de2b665b64096dbce687e48bcb6a2",
+    "semantic_hash": ""
+  },
+  "public/vercel.svg": {
+    "mtime": 1791901698.0,
+    "seen": 1793641958.7416046,
+    "ast_hash": "c0af2f507b369b085b35ef4bbe3bcf1e",
+    "semantic_hash": ""
+  },
+  "public/window.svg": {
+    "mtime": 1791901698.0,
+    "seen": 1793641958.7416067,
+    "ast_hash": "a2760511c65806022ad20adf74370ff3",
+    "semantic_hash": ""
+  },
+  "package-lock.json": {
+    "mtime": 1792514942.0,
+    "seen": 1793641958.7416084,
+    "ast_hash": "b604a237c6933191d94da6941727b3f9",
+    "semantic_hash": ""
+  }
+}

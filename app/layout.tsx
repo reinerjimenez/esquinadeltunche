@@ -19,11 +19,15 @@ const dmSans = DM_Sans({
 
 import { config } from "@/data/config";
 
+const shareTitle = "La Esquina del Tunche | Carta Digital";
+const shareDescription =
+  "Cocina amazónica y marina peruana en Tingo María. Explora nuestra carta digital y haz tu pedido fácilmente por WhatsApp.";
+const shareImage = `${config.publicUrl}/og/la-esquina-del-tunche-share.jpg`;
+
 export const metadata: Metadata = {
   metadataBase: new URL(config.publicUrl),
-  title: "La Esquina del Tunche | Carta Digital — Tingo María",
-  description:
-    "Carta digital de La Esquina del Tunche, restaurante de cocina amazónica y marina peruana en Tingo María. Tacacho, cecina, ceviches, jaleas, chifas y más. Haz tu pedido por WhatsApp.",
+  title: shareTitle,
+  description: shareDescription,
   keywords: [
     "La Esquina del Tunche",
     "carta digital",
@@ -36,23 +40,26 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "R.DEV" }],
   openGraph: {
-    title: "La Esquina del Tunche | Carta Digital",
-    description: "Cocina amazónica y marina peruana en Tingo María. Haz tu pedido por WhatsApp.",
+    title: shareTitle,
+    description: shareDescription,
+    url: config.publicUrl,
+    siteName: config.name,
     type: "website",
     locale: "es_PE",
     images: [
       {
-        url: "/img/og-image.jpg",
+        url: shareImage,
         width: 1200,
         height: 630,
-        alt: "La Esquina del Tunche — Carta Digital",
+        alt: "La Esquina del Tunche: carta digital de cocina amazónica y marina peruana",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "La Esquina del Tunche | Carta Digital",
-    description: "Cocina amazónica y marina peruana en Tingo María.",
+    title: shareTitle,
+    description: shareDescription,
+    images: [shareImage],
   },
   manifest: "/manifest.json",
   icons: {
