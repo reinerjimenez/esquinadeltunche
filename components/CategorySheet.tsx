@@ -126,7 +126,7 @@ export default function CategorySheet({
               Todas las categorías
             </h2>
             <p className="category-sheet-subtitle">
-              {categories.length} categorías disponibles
+              {categories.length} categorías en la carta
             </p>
           </div>
 

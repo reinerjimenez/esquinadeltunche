@@ -6,6 +6,7 @@ import { Dish } from "@/data/menu";
 import DishImage from "./DishImage";
 import { formatPrice } from "@/lib/whatsapp";
 import { useCart } from "@/lib/cart";
+import { getDishAvailability } from "@/lib/availability";
 
 type FeaturedCarouselProps = {
   dishes: Dish[];
@@ -22,7 +23,7 @@ const TAG_LABEL: Record<string, string> = {
 
 export default function FeaturedCarousel({ dishes, onDishClick }: FeaturedCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { state, addItem, showToast } = useCart();
+  const { state, now, addItem, showToast } = useCart();
 
   const scroll = (dir: "left" | "right") => {
     const el = scrollRef.current;
@@ -32,20 +33,20 @@ export default function FeaturedCarousel({ dishes, onDishClick }: FeaturedCarous
 
   const handleQuickAdd = (dish: Dish, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!getDishAvailability(dish.id).available) return;
     if (!dish.price) return;
     if (dish.options && dish.options.length > 0) {
       onDishClick(dish);
       return;
     }
-    addItem({
+    if (addItem({
       dishId: dish.id,
       name: dish.name,
       price: dish.price,
       quantity: 1,
       options: [],
       note: "",
-    });
-    showToast(`✓ Agregado: ${dish.name}`);
+    })) showToast(`✓ Agregado: ${dish.name}`);
   };
 
   return (
@@ -84,6 +85,7 @@ export default function FeaturedCarousel({ dishes, onDishClick }: FeaturedCarous
         >
           {dishes.map((dish) => {
             const inCart = state.items.some((i) => i.dishId === dish.id);
+            const availability = getDishAvailability(dish.id, now);
             return (
               <article
                 key={dish.id}
@@ -114,12 +116,14 @@ export default function FeaturedCarousel({ dishes, onDishClick }: FeaturedCarous
                   <h3 className="text-tunche-cream text-sm font-bold leading-tight line-clamp-2 mb-1">
                     {dish.name}
                   </h3>
+                  {!availability.available && <p className="text-amber-300 text-xs font-semibold">{availability.message}</p>}
                   <div className="flex items-center justify-between mt-2 gap-1">
                     <span className="text-tunche-gold font-bold text-sm">
                       {dish.price ? formatPrice(dish.price) : "—"}
                     </span>
                     <button
                       onClick={(e) => handleQuickAdd(dish, e)}
+                      disabled={!availability.available}
                       className={`flex items-center justify-center w-11 h-11 rounded-full border transition-[background-color,border-color,color,transform] duration-150 text-base font-bold flex-shrink-0 ${
                         inCart
                           ? "bg-tunche-gold border-tunche-gold text-tunche-dark"

@@ -13,6 +13,7 @@ import {
   OrderType,
   generateCartId,
 } from "@/lib/whatsapp";
+import { getDishAvailability, getUnavailableCartItems } from "@/lib/availability";
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
@@ -115,7 +116,8 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 
 type CartContextType = {
   state: CartState;
-  addItem: (item: Omit<CartItem, "cartId">) => void;
+  now: Date | null;
+  addItem: (item: Omit<CartItem, "cartId">) => boolean;
   removeItem: (cartId: string) => void;
   updateQty: (cartId: string, quantity: number) => void;
   updateNote: (cartId: string, note: string) => void;
@@ -158,6 +160,22 @@ function normalizePersistedCart(value: unknown): Partial<CartState> {
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(cartReducer, initialState);
+  const [now, setNow] = React.useState<Date | null>(null);
+
+  useEffect(() => {
+    const refresh = () => setNow(new Date());
+    let timer: number;
+    const scheduleRefresh = () => {
+      refresh();
+      timer = window.setTimeout(scheduleRefresh, 60000 - Date.now() % 60000 + 50);
+    };
+    scheduleRefresh();
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, []);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -204,17 +222,33 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const isValid =
     totalItems > 0 &&
+    getUnavailableCartItems(state.items, now).length === 0 &&
     state.orderType !== null &&
     (state.orderType === "dineIn"
       ? state.tableNumber.trim() !== ""
       : state.address.trim() !== "");
 
   const addItem = useCallback((item: Omit<CartItem, "cartId">) => {
+    const availability = getDishAvailability(item.dishId);
+    if (!availability.available) {
+      dispatch({ type: "SET_TOAST", message: availability.message });
+      return false;
+    }
     dispatch({ type: "ADD_ITEM", payload: item });
+    return true;
   }, []);
   const removeItem = useCallback((cartId: string) => dispatch({ type: "REMOVE_ITEM", cartId }), []);
-  const updateQty = useCallback((cartId: string, quantity: number) =>
-    dispatch({ type: "UPDATE_QTY", cartId, quantity }), []);
+  const updateQty = useCallback((cartId: string, quantity: number) => {
+    const item = state.items.find((candidate) => candidate.cartId === cartId);
+    if (item && quantity > item.quantity) {
+      const availability = getDishAvailability(item.dishId);
+      if (!availability.available) {
+        dispatch({ type: "SET_TOAST", message: availability.message });
+        return;
+      }
+    }
+    dispatch({ type: "UPDATE_QTY", cartId, quantity });
+  }, [state.items]);
   const updateNote = useCallback((cartId: string, note: string) =>
     dispatch({ type: "UPDATE_NOTE", cartId, note }), []);
   const setOrderType = useCallback((orderType: OrderType) =>
@@ -233,6 +267,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     <CartContext.Provider
       value={{
         state,
+        now,
         addItem,
         removeItem,
         updateQty,

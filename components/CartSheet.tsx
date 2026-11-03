@@ -18,10 +18,12 @@ import { config } from "@/data/config";
 import WhatsAppIcon from "@/components/WhatsAppIcon";
 import { trackEvent } from "@/lib/analytics";
 import { useBottomSheetViewport } from "@/lib/useBottomSheetViewport";
+import { getDishAvailability, getUnavailableCartItems } from "@/lib/availability";
 
 export default function CartSheet() {
   const {
     state,
+    now,
     removeItem,
     updateQty,
     updateNote,
@@ -59,12 +61,18 @@ export default function CartSheet() {
 
   if (!state.isCartOpen) return null;
 
+  const unavailableItems = getUnavailableCartItems(state.items, now);
+
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
     let firstErrorElementId = "";
 
     if (totalItems === 0) {
       errs.items = "Agrega al menos un plato a tu pedido.";
+    }
+    if (getUnavailableCartItems(state.items).length > 0) {
+      errs.items = "Quita los productos retirados o suspendidos. Los makis se habilitan en su horario.";
+      firstErrorElementId = "cart-step-items";
     }
 
     if (!state.orderType) {
@@ -99,12 +107,18 @@ export default function CartSheet() {
 
   const handleSend = () => {
     if (!validate()) return;
+    let message: string;
+    try {
+      message = buildWhatsAppMessage({ ...state, orderType: state.orderType! });
+    } catch {
+      setFieldErrors((errors) => ({ ...errors, items: "Hay productos que ya no están disponibles. Revísalos antes de enviar." }));
+      return;
+    }
     trackEvent("whatsapp_click", {
       context: "cart",
       totalPrice,
       totalItems,
     });
-    const message = buildWhatsAppMessage({ ...state, orderType: state.orderType! });
     const url = getWhatsAppUrl(message);
     window.open(url, "_blank", "noopener,noreferrer");
     setSent(true);
@@ -199,7 +213,7 @@ export default function CartSheet() {
                 {/* ═══════════════════════════════════════════
                     PASO 1 — REVISA TUS PLATOS
                     ═══════════════════════════════════════════ */}
-                <section className="cart-step" aria-labelledby="step-1-title">
+                <section className="cart-step" aria-labelledby="step-1-title" id="cart-step-items">
                   <header className="cart-step-header">
                     <span className="cart-step-number" aria-hidden="true">1</span>
                     <div>
@@ -207,11 +221,13 @@ export default function CartSheet() {
                       <p className="cart-step-subtitle">Verifica cantidades o agrega indicaciones especiales si deseas.</p>
                     </div>
                   </header>
+                  {fieldErrors.items && <p className="cart-error-msg" role="alert">{fieldErrors.items}</p>}
 
                   <div className="cart-items-list" role="list">
                     {state.items.map((item) => {
                       const isEditingNote = editingNoteId === item.cartId;
                       const hasNote = Boolean(item.note?.trim());
+                      const availability = getDishAvailability(item.dishId, now);
 
                       return (
                         <div
@@ -223,6 +239,11 @@ export default function CartSheet() {
                           <div className="cart-item-main">
                             <div className="cart-item-info">
                               <h4 className="cart-item-name">{item.name}</h4>
+                              {!availability.available && (
+                                <p className="text-amber-300 text-xs font-semibold" role="status">
+                                  {availability.message}. Puedes quitarlo del pedido.
+                                </p>
+                              )}
                               {item.options
                                 .filter((o) => o.choices.length > 0)
                                 .map((o) => (
@@ -269,6 +290,7 @@ export default function CartSheet() {
                               <button
                                 type="button"
                                 onClick={() => updateQty(item.cartId, item.quantity + 1)}
+                                disabled={!availability.available}
                                 aria-label={`Añadir una unidad de ${item.name}`}
                               >
                                 +
@@ -568,7 +590,11 @@ export default function CartSheet() {
 
                     {/* Status feedback */}
                     <div className="cart-validation-status">
-                      {!state.orderType ? (
+                      {unavailableItems.length > 0 ? (
+                        <p className="cart-status-hint text-amber-300">
+                          <strong>Productos no disponibles:</strong> retira los suspendidos o retirados. Los makis se habilitan en su horario.
+                        </p>
+                      ) : !state.orderType ? (
                         <p className="cart-status-hint text-amber-300">
                           ⚠️ <strong>Falta completar:</strong> Elige en el <strong>Paso 2</strong> si comerás en el restaurante o es para llevar.
                         </p>
@@ -608,6 +634,7 @@ export default function CartSheet() {
               <button
                 type="button"
                 onClick={handleSend}
+                disabled={unavailableItems.length > 0}
                 className="btn-gold cart-submit-btn"
                 id="cart-send-btn"
                 aria-label={`Enviar pedido por WhatsApp, total ${formatPrice(totalPrice)}`}

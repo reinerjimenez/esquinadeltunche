@@ -12,6 +12,10 @@ export const config = {
   // Ficha oficial de Google Maps; no es un enlace directo al formulario de reseña.
   googleReviewsUrl: "https://maps.app.goo.gl/X7MXjDFJNnvYPpH68?g_st=ic",
   schedule: "TODO: horario de atención", // ej: "Lun–Dom: 8:00 am – 10:00 pm"
+  availability: {
+    frappesSuspended: true,
+    makis: { timeZone: "America/Lima", startMinute: 18 * 60, endMinute: 23 * 60 + 30 },
+  },
   orderTypes: { takeaway: true, dineIn: true },
   tableCount: 0, // 0 = sin límite de número de mesa
   takeawayNote: "", // ej: "Delivery disponible en el centro de Tingo María"

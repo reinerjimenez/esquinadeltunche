@@ -1,4 +1,5 @@
-import { config } from "@/data/config";
+import { config } from "../data/config";
+import { getUnavailableCartItems } from "./availability";
 
 export type OrderType = "takeaway" | "dineIn";
 
@@ -34,7 +35,10 @@ function buildOptionsSuffix(options: CartItemOption[]): string {
     .join(" | ");
 }
 
-export function buildWhatsAppMessage(order: CartOrder): string {
+export function buildWhatsAppMessage(order: CartOrder, now: Date = new Date()): string {
+  if (getUnavailableCartItems(order.items, now).length > 0) {
+    throw new Error("El pedido contiene productos no disponibles");
+  }
   const lines: string[] = [];
 
   lines.push(config.orderGreeting);

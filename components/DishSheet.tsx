@@ -7,6 +7,7 @@ import DishImage from "./DishImage";
 import { formatPrice, CartItemOption } from "@/lib/whatsapp";
 import { useCart } from "@/lib/cart";
 import { useBottomSheetViewport } from "@/lib/useBottomSheetViewport";
+import { getDishAvailability } from "@/lib/availability";
 
 type DishSheetProps = {
   dish: Dish | null;
@@ -15,7 +16,7 @@ type DishSheetProps = {
 };
 
 export default function DishSheet({ dish, categoryId, onClose }: DishSheetProps) {
-  const { addItem, showToast } = useCart();
+  const { now, addItem, showToast } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [note, setNote] = useState("");
   const [selectedVariantId, setSelectedVariantId] = useState(dish?.variants?.[0]?.id ?? "");
@@ -45,6 +46,7 @@ export default function DishSheet({ dish, categoryId, onClose }: DishSheetProps)
   const hasOptions = Boolean(dish.options?.length);
   const selectedVariant = dish.variants?.find((variant) => variant.id === selectedVariantId);
   const unitPrice = selectedVariant?.price ?? dish.price;
+  const availability = getDishAvailability(dish.id, now);
 
   const toggleChoice = (optionId: string, choice: string, max: number) => {
     const current = selectedOptions[optionId] || [];
@@ -123,16 +125,17 @@ export default function DishSheet({ dish, categoryId, onClose }: DishSheetProps)
   };
 
   const handleAdd = () => {
+    if (!getDishAvailability(dish.id).available) return;
     if (!validate() || !unitPrice) return;
     const options = buildOptions();
-    addItem({
+    if (!addItem({
       dishId: dish.id,
       name: dish.name,
       price: unitPrice,
       quantity,
       options,
       note,
-    });
+    })) return;
     showToast(`✓ Agregado: ${dish.name}`);
     onClose();
   };
@@ -223,6 +226,9 @@ export default function DishSheet({ dish, categoryId, onClose }: DishSheetProps)
               )}
               {dish.description && (
                 <p className="text-tunche-muted text-sm leading-relaxed">{dish.description}</p>
+              )}
+              {!availability.available && (
+                <p className="text-amber-300 text-sm font-semibold mt-2" role="status">{availability.message}</p>
               )}
             </div>
 
@@ -384,11 +390,11 @@ export default function DishSheet({ dish, categoryId, onClose }: DishSheetProps)
                   type="button"
                   onClick={handleAdd}
                   className="btn-gold flex-1 text-sm sm:text-base py-3.5 font-bold"
-                  disabled={!unitPrice}
+                  disabled={!unitPrice || !availability.available}
                   id="dish-sheet-add-btn"
                   aria-label={`Agregar ${quantity} ${dish.name} al pedido por ${formatPrice(totalPrice)}`}
                 >
-                  Agregar al pedido · {unitPrice ? formatPrice(totalPrice) : "Sin precio"}
+                  {availability.available ? `Agregar al pedido · ${unitPrice ? formatPrice(totalPrice) : "Sin precio"}` : availability.message}
                 </button>
               </div>
             </div>

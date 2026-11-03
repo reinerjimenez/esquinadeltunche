@@ -906,27 +906,6 @@ export const menu: Category[] = [
         tags: ["amazonico"],
       },
       {
-        id: "camu-camu-1-litro",
-        name: "Camu Camu — 1 litro",
-        description: "Jarra de refresco natural de camu camu amazónico (1 litro).",
-        price: 16,
-        tags: ["amazonico"],
-      },
-      {
-        id: "camu-camu-medio-litro",
-        name: "Camu Camu — ½ litro",
-        description: "Media jarra de refresco natural de camu camu amazónico (½ litro).",
-        price: 8,
-        tags: ["amazonico"],
-      },
-      {
-        id: "camu-camu-vaso",
-        name: "Camu Camu — 1 vaso",
-        description: "Vaso de refresco natural de camu camu.",
-        price: 5,
-        tags: ["amazonico"],
-      },
-      {
         id: "coca-cola-personal",
         name: "Coca-Cola personal",
         description: "Botella personal.",

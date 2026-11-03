@@ -6,6 +6,7 @@ import { Dish } from "@/data/menu";
 import DishImage from "./DishImage";
 import { formatPrice } from "@/lib/whatsapp";
 import { useCart } from "@/lib/cart";
+import { getDishAvailability } from "@/lib/availability";
 
 const TAG_LABEL: Record<string, string> = {
   recomendado: "Favorito",
@@ -35,7 +36,8 @@ function DishPrice({ dish }: { dish: Dish }) {
 }
 
 export default function DishCard({ dish, categoryId, onClick }: DishCardProps) {
-  const { state, addItem, updateQty, showToast } = useCart();
+  const { state, now, addItem, updateQty, showToast } = useCart();
+  const availability = getDishAvailability(dish.id, now);
   const [adding, setAdding] = useState(false);
   const cartItems = state.items.filter((item) => item.dishId === dish.id);
   const hasChoices = Boolean(dish.options?.length || dish.variants?.length);
@@ -43,21 +45,21 @@ export default function DishCard({ dish, categoryId, onClick }: DishCardProps) {
 
   const handleAdd = (event: React.MouseEvent) => {
     event.stopPropagation();
+    if (!getDishAvailability(dish.id).available) return;
     if (hasChoices || !dish.price) {
       onClick();
       return;
     }
 
     setAdding(true);
-    addItem({
+    if (addItem({
       dishId: dish.id,
       name: dish.name,
       price: dish.price,
       quantity: 1,
       options: [],
       note: "",
-    });
-    showToast(`✓ Agregado: ${dish.name}`);
+    })) showToast(`✓ Agregado: ${dish.name}`);
     setTimeout(() => setAdding(false), 300);
   };
 
@@ -81,9 +83,10 @@ export default function DishCard({ dish, categoryId, onClick }: DishCardProps) {
     }
   };
 
-  const controls = hasChoices || !simpleCartItem ? (
+  const controls = !availability.available || hasChoices || !simpleCartItem ? (
     <button
       onClick={handleAdd}
+      disabled={!availability.available}
       className={`dish-add ${adding ? "is-adding" : ""}`}
       aria-label={
         hasChoices
@@ -141,6 +144,7 @@ export default function DishCard({ dish, categoryId, onClick }: DishCardProps) {
             </span>
           )}
           <h3>{dish.name}</h3>
+          {!availability.available && <p className="text-amber-300 text-xs font-semibold">{availability.message}</p>}
           {(dish.detail || dish.description) && (
             <p className="line-clamp-2">
               {dish.detail}
@@ -170,6 +174,7 @@ export default function DishCard({ dish, categoryId, onClick }: DishCardProps) {
     >
       <div className="dish-row-copy">
         <h3>{dish.name}</h3>
+        {!availability.available && <p className="text-amber-300 text-xs font-semibold">{availability.message}</p>}
         <div className="dish-row-meta">
           {(dish.detail || dish.description) && (
             <p className="line-clamp-2">

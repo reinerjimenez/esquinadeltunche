@@ -3,6 +3,8 @@
 import { Dish, Category } from "@/data/menu";
 import { LayoutGrid } from "lucide-react";
 import DishCard from "./DishCard";
+import { getCategoryAvailability } from "@/lib/availability";
+import { useCart } from "@/lib/cart";
 
 type MenuSectionProps = {
   category: Category;
@@ -17,6 +19,8 @@ export default function MenuSection({
   onDishClick,
   onExploreCategories,
 }: MenuSectionProps) {
+  const { now } = useCart();
+  const availability = getCategoryAvailability(category.id, now);
   return (
     <section
       id={`section-${category.id}`}
@@ -31,9 +35,15 @@ export default function MenuSection({
           </h2>
           <p className="category-subtitle">
             {category.dishes.length}{" "}
-            {category.dishes.length === 1 ? "plato disponible" : "platos disponibles"}
+            {category.dishes.length === 1 ? "plato" : "platos"}
             {category.subtitle ? ` · ${category.subtitle}` : ""}
           </p>
+          {category.id === "makis" && (
+            <p className="text-tunche-gold text-sm font-semibold">Horario: 6:00 p. m. a 11:30 p. m. (hora de Perú)</p>
+          )}
+          {!availability.available && (
+            <p className="text-amber-300 text-sm font-semibold" role="status">{availability.message}</p>
+          )}
         </div>
       </header>
 
