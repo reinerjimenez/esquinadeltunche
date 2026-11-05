@@ -12,6 +12,8 @@ import {
   CartOrder,
   OrderType,
   generateCartId,
+  calculateOrderTotals,
+  getPickupNameError,
 } from "@/lib/whatsapp";
 import { getDishAvailability, getUnavailableCartItems } from "@/lib/availability";
 
@@ -131,6 +133,9 @@ type CartContextType = {
   closeCart: () => void;
   showToast: (message: string) => void;
   totalItems: number;
+  subtotal: number;
+  taperCount: number;
+  taperTotal: number;
   totalPrice: number;
   isValid: boolean;
 };
@@ -217,12 +222,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [state.toastMessage]);
 
-  const totalItems = state.items.reduce((acc, i) => acc + i.quantity, 0);
-  const totalPrice = state.items.reduce((acc, i) => acc + i.price * i.quantity, 0);
+  const { itemCount: totalItems, subtotal, taperCount, taperTotal, total: totalPrice } =
+    calculateOrderTotals(state);
 
   const isValid =
     totalItems > 0 &&
     getUnavailableCartItems(state.items, now).length === 0 &&
+    getPickupNameError(state) === null &&
     state.orderType !== null &&
     (state.orderType === "dineIn"
       ? state.tableNumber.trim() !== ""
@@ -282,6 +288,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         closeCart,
         showToast,
         totalItems,
+        subtotal,
+        taperCount,
+        taperTotal,
         totalPrice,
         isValid,
       }}

@@ -36,9 +36,9 @@
     "semantic_hash": ""
   },
   "components/CartSheet.tsx": {
-    "mtime": 1793721224.0,
-    "seen": 1793721415.5903368,
-    "ast_hash": "38e7da01826d96f28183ee1d87ebc7d3",
+    "mtime": 1793902038.0,
+    "seen": 1793902222.2116964,
+    "ast_hash": "86fe4411500d1eb84b5131ef71d2ec08",
     "semantic_hash": ""
   },
   "components/CategoryNav.tsx": {
@@ -126,9 +126,9 @@
     "semantic_hash": ""
   },
   "data/config.ts": {
-    "mtime": 1793721048.0,
-    "seen": 1793721415.5903728,
-    "ast_hash": "975710b94222b8bd3344a761976689db",
+    "mtime": 1793901958.0,
+    "seen": 1793902222.211775,
+    "ast_hash": "2bcc332e92fd09585215b45da56513ff",
     "semantic_hash": ""
   },
   "data/menu.ts": {
@@ -150,9 +150,9 @@
     "semantic_hash": ""
   },
   "lib/cart.tsx": {
-    "mtime": 1793721224.0,
-    "seen": 1793721415.5903845,
-    "ast_hash": "8e3baac8f549bebbdaee51460d91aa57",
+    "mtime": 1793901982.0,
+    "seen": 1793902222.2118008,
+    "ast_hash": "feefc78a50c56fc8443f844fc2a68aa9",
     "semantic_hash": ""
   },
   "lib/useBottomSheetViewport.ts": {
@@ -162,9 +162,9 @@
     "semantic_hash": ""
   },
   "lib/whatsapp.ts": {
-    "mtime": 1793721468.0,
-    "seen": 1793721607.977706,
-    "ast_hash": "e8b6160a414cb3cf98cc92882392903a",
+    "mtime": 1793901960.0,
+    "seen": 1793902222.2118106,
+    "ast_hash": "e5f27a48076b99dad0dc2f0038b1d55d",
     "semantic_hash": ""
   },
   "next.config.ts": {
@@ -429,6 +429,12 @@
     "mtime": 1793721470.0,
     "seen": 1793721607.9777696,
     "ast_hash": "b1f16d7e2e4c39fe63712fc674fe0a3b",
+    "semantic_hash": ""
+  },
+  "tests/order-totals.test.cjs": {
+    "mtime": 1793901924.0,
+    "seen": 1793902222.2118511,
+    "ast_hash": "a299376a6ff4ec81a283ae333a7cbd21",
     "semantic_hash": ""
   },
   "package-lock.json": {

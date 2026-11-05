@@ -32,6 +32,7 @@ export const config = {
     url: "https://esquinadeltunche.vercel.app",
   },
   currency: "S/",
+  taperUnitPrice: 1,
   featured: [
     "combito-del-tunche",
     "ceviche-del-tunche",

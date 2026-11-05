@@ -1,17 +1,17 @@
-# Graph Report - tunche-app  (2026-11-03)
+# Graph Report - tunche-app  (2026-11-05)
 
 ## Corpus Check
-- 41 files · ~28,164 words
+- 42 files · ~28,776 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 27 file(s) not represented in the graph (top: .csv 24, (none) 1, .css 1)
 
 ## Summary
-- 405 nodes · 677 edges · 29 communities (24 shown, 5 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 9 edges (avg confidence: 0.86)
+- 414 nodes · 703 edges · 29 communities (24 shown, 5 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 10 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c2a02602`
+- Built from commit: `870efc7e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -51,11 +51,11 @@
 2. `compilerOptions` - 16 edges
 3. `Design Engineering` - 16 edges
 4. `HomePage()` - 15 edges
-5. `react` - 15 edges
-6. `getDishAvailability()` - 14 edges
-7. `formatPrice()` - 14 edges
-8. `lucide-react` - 13 edges
-9. `CartSheet()` - 12 edges
+5. `formatPrice()` - 15 edges
+6. `react` - 15 edges
+7. `getDishAvailability()` - 14 edges
+8. `CartSheet()` - 13 edges
+9. `lucide-react` - 13 edges
 10. `LA ESQUINA DEL TUNCHE` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
@@ -63,10 +63,10 @@
   README.md → components/DishImage.tsx
 - `RootLayout()` --calls--> `CartProvider()`  [EXTRACTED]
   app/layout.tsx → lib/cart.tsx
-- `HomePage()` --calls--> `CartButton()`  [EXTRACTED]
-  app/page.tsx → components/CartButton.tsx
 - `HomePage()` --calls--> `CartSheet()`  [EXTRACTED]
   app/page.tsx → components/CartSheet.tsx
+- `HomePage()` --calls--> `Footer()`  [EXTRACTED]
+  app/page.tsx → components/Footer.tsx
 - `HomePage()` --calls--> `MapSection()`  [EXTRACTED]
   app/page.tsx → components/MapSection.tsx
 
@@ -76,20 +76,20 @@
 ## Communities (29 total, 5 thin omitted)
 
 ### Community 0 - "page.tsx"
-Cohesion: 0.08
-Nodes (50): dishesById, featuredDishes, HomePage(), normalize(), searchableDishFields, CategoryNav(), CategoryNavProps, CategorySheet() (+42 more)
+Cohesion: 0.10
+Nodes (40): dishesById, featuredDishes, HomePage(), normalize(), searchableDishFields, CartButton(), CartButtonProps, CategoryNav() (+32 more)
 
 ### Community 1 - "package.json"
-Cohesion: 0.08
-Nodes (32): eslintConfig, react-dom@19.3.0, devDependencies, cross-env@^10.1.0, eslint@^9, eslint-config-next@16.4.0, tailwindcss@^4, @tailwindcss/postcss@^4.3.3 (+24 more)
+Cohesion: 0.06
+Nodes (42): FacebookIcon(), Footer(), InstagramIcon(), TikTokIcon(), eslintConfig, nextConfig, dependencies, lucide-react@^1.56.0 (+34 more)
 
 ### Community 2 - "ui-ux-pro-max"
 Cohesion: 0.07
 Nodes (29): Accessibility, Available Domains, Available Stacks, Common Rules for Professional UI, Example Workflow, How to Use This Skill, Icons & Visual Elements, Interaction (+21 more)
 
 ### Community 3 - "cart.tsx"
-Cohesion: 0.08
-Nodes (32): cinzel, dmSans, metadata, RootLayout(), viewport, CartSheet(), config, Config (+24 more)
+Cohesion: 0.07
+Nodes (41): cinzel, dmSans, metadata, RootLayout(), viewport, CartSheet(), config, Config (+33 more)
 
 ### Community 4 - "LA ESQUINA DEL TUNCHE"
 Cohesion: 0.09
@@ -112,8 +112,8 @@ Cohesion: 0.19
 Nodes (5): _detect_page_type(), format_master_md(), format_page_override_md(), _generate_intelligent_overrides(), persist_design_system()
 
 ### Community 9 - "ShareBlock.tsx"
-Cohesion: 0.22
-Nodes (10): CartButton(), CartButtonProps, MapSection(), emptySubscribe(), ShareBlock(), WhatsAppIcon(), WhatsAppIconProps, AnalyticsEventType (+2 more)
+Cohesion: 0.27
+Nodes (8): MapSection(), emptySubscribe(), ShareBlock(), WhatsAppIcon(), WhatsAppIconProps, AnalyticsEventType, AnalyticsPayload, trackEvent()
 
 ### Community 10 - "manifest.json"
 Cohesion: 0.17
@@ -178,16 +178,16 @@ Nodes (4): Debugging Animations, Frame-by-frame inspection, Slow motion testing,
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `DishImage()` connect `page.tsx` to `LA ESQUINA DEL TUNCHE`?**
-  _High betweenness centrality (0.046) - this node is a cross-community bridge._
+  _High betweenness centrality (0.047) - this node is a cross-community bridge._
 - **Should `page.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.07578084997439836 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.09941944847605225 - nodes in this community are weakly interconnected._
 - **Why does `Imágenes` connect `LA ESQUINA DEL TUNCHE` to `page.tsx`?**
-  _High betweenness centrality (0.044) - this node is a cross-community bridge._
+  _High betweenness centrality (0.045) - this node is a cross-community bridge._
 - **Should `package.json` be split into smaller, more focused modules?**
-  _Cohesion score 0.0784313725490196 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05893719806763285 - nodes in this community are weakly interconnected._
 - **Should `ui-ux-pro-max` be split into smaller, more focused modules?**
   _Cohesion score 0.06666666666666667 - nodes in this community are weakly interconnected._
 - **Should `cart.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.08484848484848485 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07407407407407407 - nodes in this community are weakly interconnected._
 - **Should `LA ESQUINA DEL TUNCHE` be split into smaller, more focused modules?**
   _Cohesion score 0.08695652173913043 - nodes in this community are weakly interconnected._

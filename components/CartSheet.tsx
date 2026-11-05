@@ -13,7 +13,7 @@ import {
   User,
 } from "lucide-react";
 import { useCart } from "@/lib/cart";
-import { buildWhatsAppMessage, getWhatsAppUrl, formatPrice } from "@/lib/whatsapp";
+import { buildWhatsAppMessage, getWhatsAppUrl, formatPrice, getPickupNameError } from "@/lib/whatsapp";
 import { config } from "@/data/config";
 import WhatsAppIcon from "@/components/WhatsAppIcon";
 import { trackEvent } from "@/lib/analytics";
@@ -35,6 +35,9 @@ export default function CartSheet() {
     clearCart,
     closeCart,
     totalItems,
+    subtotal,
+    taperCount,
+    taperTotal,
     totalPrice,
   } = useCart();
 
@@ -83,6 +86,12 @@ export default function CartSheet() {
     if (state.orderType === "takeaway" && !state.address.trim()) {
       errs.address = "Escribe tu dirección de entrega.";
       if (!firstErrorElementId) firstErrorElementId = "cart-address";
+    }
+
+    const nameError = getPickupNameError(state);
+    if (nameError) {
+      errs.customerName = nameError;
+      if (!firstErrorElementId) firstErrorElementId = "cart-pickup-name";
     }
 
     if (state.orderType === "dineIn" && !state.tableNumber.trim()) {
@@ -397,7 +406,7 @@ export default function CartSheet() {
                       aria-checked={state.orderType === "dineIn"}
                       onClick={() => {
                         setOrderType("dineIn");
-                        setFieldErrors((err) => ({ ...err, orderType: "" }));
+                        setFieldErrors((err) => ({ ...err, orderType: "", customerName: "" }));
                       }}
                       className={`cart-order-type-card ${state.orderType === "dineIn" ? "is-selected" : ""
                         }`}
@@ -421,7 +430,7 @@ export default function CartSheet() {
                       aria-checked={state.orderType === "takeaway"}
                       onClick={() => {
                         setOrderType("takeaway");
-                        setFieldErrors((err) => ({ ...err, orderType: "" }));
+                        setFieldErrors((err) => ({ ...err, orderType: "", customerName: "" }));
                       }}
                       className={`cart-order-type-card ${state.orderType === "takeaway" ? "is-selected" : ""
                         }`}
@@ -505,6 +514,36 @@ export default function CartSheet() {
                     </div>
                   )}
 
+                  {state.orderType === "takeaway" && (
+                    <div className="cart-required-field">
+                      <label htmlFor="cart-pickup-name" className="cart-label">
+                        <span>Nombre de quien recogerá el pedido *</span>
+                        <span className="cart-required-badge">Obligatorio</span>
+                      </label>
+                      <p id="cart-pickup-name-help" className="text-tunche-muted text-xs mb-2">
+                        Para identificar tu pedido al momento de entregarlo
+                      </p>
+                      <input
+                        id="cart-pickup-name"
+                        type="text"
+                        value={state.customerName}
+                        onChange={(event) => {
+                          setName(event.target.value);
+                          setFieldErrors((errors) => ({ ...errors, customerName: "" }));
+                        }}
+                        className={`tunche-input ${fieldErrors.customerName ? "error" : ""}`}
+                        required
+                        aria-invalid={Boolean(fieldErrors.customerName)}
+                        aria-describedby={`cart-pickup-name-help${fieldErrors.customerName ? " cart-pickup-name-error" : ""}`}
+                      />
+                      {fieldErrors.customerName && (
+                        <p id="cart-pickup-name-error" className="cart-error-msg" role="alert">
+                          {fieldErrors.customerName}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
                   {/* Secondary Optional Fields (Name & Comment) */}
                   <div className="cart-optional-section">
                     <button
@@ -515,7 +554,7 @@ export default function CartSheet() {
                     >
                       <span className="cart-optional-toggle-text">
                         <User size={16} aria-hidden="true" />
-                        <span>Nombre y comentarios <span className="text-tunche-muted text-xs font-normal">(opcional)</span></span>
+                        <span>{state.orderType === "takeaway" ? "Comentarios" : "Nombre y comentarios"} <span className="text-tunche-muted text-xs font-normal">(opcional)</span></span>
                       </span>
                       <ChevronDown
                         size={16}
@@ -527,7 +566,7 @@ export default function CartSheet() {
 
                     {showOptionalFields && (
                       <div className="cart-optional-fields">
-                        <div>
+                        {state.orderType !== "takeaway" && <div>
                           <label htmlFor="cart-name" className="cart-sublabel">
                             Tu nombre <span className="text-tunche-muted font-normal">(opcional)</span>
                           </label>
@@ -539,7 +578,7 @@ export default function CartSheet() {
                             onChange={(e) => setName(e.target.value)}
                             className="tunche-input"
                           />
-                        </div>
+                        </div>}
 
                         <div>
                           <label htmlFor="cart-comment" className="cart-sublabel">
@@ -574,12 +613,21 @@ export default function CartSheet() {
                   <div className="cart-summary-box">
                     <div className="cart-summary-row">
                       <span className="text-tunche-cream text-sm">
-                        Platos seleccionados ({totalItems}):
+                        Subtotal de productos ({totalItems}):
                       </span>
                       <span className="text-tunche-cream font-semibold">
-                        {formatPrice(totalPrice)}
+                        {formatPrice(subtotal)}
                       </span>
                     </div>
+
+                    {taperCount > 0 && (
+                      <div className="cart-summary-row">
+                        <span className="text-tunche-cream text-sm">
+                          Táper ({taperCount} × {formatPrice(config.taperUnitPrice)})
+                        </span>
+                        <span className="text-tunche-cream font-semibold">{formatPrice(taperTotal)}</span>
+                      </div>
+                    )}
 
                     <div className="cart-summary-row cart-summary-total">
                       <span className="text-tunche-cream font-bold text-base">Total estimado</span>
@@ -605,6 +653,10 @@ export default function CartSheet() {
                       ) : state.orderType === "takeaway" && !state.address.trim() ? (
                         <p className="cart-status-hint text-amber-300">
                           ⚠️ <strong>Falta completar:</strong> Ingresa la dirección de entrega en el <strong>Paso 2</strong>.
+                        </p>
+                      ) : getPickupNameError(state) ? (
+                        <p className="cart-status-hint text-amber-300">
+                          ⚠️ <strong>Falta completar:</strong> Ingresa el nombre de quien recogerá el pedido en el <strong>Paso 2</strong>.
                         </p>
                       ) : (
                         <p className="cart-status-hint text-emerald-400">

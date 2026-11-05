@@ -28,6 +28,20 @@ export type CartOrder = {
   comment: string;
 };
 
+export function calculateOrderTotals(order: Pick<CartOrder, "items" | "orderType">) {
+  const itemCount = order.items.reduce((count, item) => count + item.quantity, 0);
+  const subtotal = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const taperCount = order.orderType === "takeaway" ? itemCount : 0;
+  const taperTotal = taperCount * config.taperUnitPrice;
+  return { itemCount, subtotal, taperCount, taperTotal, total: subtotal + taperTotal };
+}
+
+export function getPickupNameError(order: Pick<CartOrder, "orderType" | "customerName">): string | null {
+  return order.orderType === "takeaway" && !order.customerName.trim()
+    ? "Ingresa el nombre de quien recogerá el pedido"
+    : null;
+}
+
 function buildOptionsSuffix(options: CartItemOption[]): string {
   return options
     .filter((o) => o.choices.length > 0)
@@ -39,6 +53,9 @@ export function buildWhatsAppMessage(order: CartOrder, now: Date = new Date()): 
   if (getUnavailableCartItems(order.items, now).length > 0) {
     throw new Error("El pedido contiene productos no disponibles");
   }
+  const nameError = getPickupNameError(order);
+  if (nameError) throw new Error(nameError);
+  const totals = calculateOrderTotals(order);
   const lines: string[] = [];
 
   lines.push(config.orderGreeting);
@@ -54,16 +71,14 @@ export function buildWhatsAppMessage(order: CartOrder, now: Date = new Date()): 
   }
 
   if (order.customerName.trim()) {
-    lines.push(`*Nombre:* ${order.customerName}`);
+    lines.push(`*${order.orderType === "takeaway" ? "Cliente" : "Nombre"}:* ${order.customerName.trim()}`);
   }
 
   lines.push("");
   lines.push("*Detalle del pedido:*");
 
-  let total = 0;
   for (const item of order.items) {
     const subtotal = item.price * item.quantity;
-    total += subtotal;
     const optionsSuffix = buildOptionsSuffix(item.options);
     const optionsPart = optionsSuffix ? ` (${optionsSuffix})` : "";
     lines.push(`${item.quantity} x ${item.name}${optionsPart} — ${config.currency} ${subtotal.toFixed(2)}`);
@@ -73,7 +88,11 @@ export function buildWhatsAppMessage(order: CartOrder, now: Date = new Date()): 
   }
 
   lines.push("");
-  lines.push(`*Total estimado: ${config.currency} ${total.toFixed(2)}*`);
+  lines.push(`Subtotal: ${formatPrice(totals.subtotal)}`);
+  if (totals.taperCount > 0) {
+    lines.push(`Táper (${totals.taperCount} × ${formatPrice(config.taperUnitPrice)}): ${formatPrice(totals.taperTotal)}`);
+  }
+  lines.push(`*Total estimado: ${formatPrice(totals.total)}*`);
 
   if (order.comment.trim()) {
     lines.push("");
