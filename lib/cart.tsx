@@ -14,6 +14,7 @@ import {
   generateCartId,
   calculateOrderTotals,
   getPickupNameError,
+  getPickupPhoneError,
 } from "@/lib/whatsapp";
 import { getDishAvailability, getUnavailableCartItems } from "@/lib/availability";
 
@@ -30,6 +31,7 @@ const initialState: CartState = {
   address: "",
   tableNumber: "",
   customerName: "",
+  customerPhone: "",
   comment: "",
   isCartOpen: false,
   toastMessage: null,
@@ -46,6 +48,7 @@ type CartAction =
   | { type: "SET_ADDRESS"; address: string }
   | { type: "SET_TABLE"; tableNumber: string }
   | { type: "SET_NAME"; customerName: string }
+  | { type: "SET_PHONE"; customerPhone: string }
   | { type: "SET_COMMENT"; comment: string }
   | { type: "CLEAR_CART" }
   | { type: "OPEN_CART" }
@@ -97,6 +100,8 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       return { ...state, tableNumber: action.tableNumber };
     case "SET_NAME":
       return { ...state, customerName: action.customerName };
+    case "SET_PHONE":
+      return { ...state, customerPhone: action.customerPhone };
     case "SET_COMMENT":
       return { ...state, comment: action.comment };
     case "CLEAR_CART":
@@ -127,6 +132,7 @@ type CartContextType = {
   setAddress: (address: string) => void;
   setTable: (tableNumber: string) => void;
   setName: (name: string) => void;
+  setPhone: (phone: string) => void;
   setComment: (comment: string) => void;
   clearCart: () => void;
   openCart: () => void;
@@ -157,6 +163,7 @@ function normalizePersistedCart(value: unknown): Partial<CartState> {
     address: typeof saved.address === "string" ? saved.address : "",
     tableNumber: typeof saved.tableNumber === "string" ? saved.tableNumber : "",
     customerName: typeof saved.customerName === "string" ? saved.customerName : "",
+    customerPhone: typeof saved.customerPhone === "string" ? saved.customerPhone : "",
     comment: typeof saved.comment === "string" ? saved.comment : "",
   };
 }
@@ -204,6 +211,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         address: state.address,
         tableNumber: state.tableNumber,
         customerName: state.customerName,
+        customerPhone: state.customerPhone,
         comment: state.comment,
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(persistable));
@@ -229,6 +237,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     totalItems > 0 &&
     getUnavailableCartItems(state.items, now).length === 0 &&
     getPickupNameError(state) === null &&
+    getPickupPhoneError(state) === null &&
     state.orderType !== null &&
     (state.orderType === "dineIn"
       ? state.tableNumber.trim() !== ""
@@ -262,6 +271,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const setAddress = useCallback((address: string) => dispatch({ type: "SET_ADDRESS", address }), []);
   const setTable = useCallback((tableNumber: string) => dispatch({ type: "SET_TABLE", tableNumber }), []);
   const setName = useCallback((customerName: string) => dispatch({ type: "SET_NAME", customerName }), []);
+  const setPhone = useCallback((customerPhone: string) => dispatch({ type: "SET_PHONE", customerPhone }), []);
   const setComment = useCallback((comment: string) => dispatch({ type: "SET_COMMENT", comment }), []);
   const clearCart = useCallback(() => dispatch({ type: "CLEAR_CART" }), []);
   const openCart = useCallback(() => dispatch({ type: "OPEN_CART" }), []);
@@ -282,6 +292,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setAddress,
         setTable,
         setName,
+        setPhone,
         setComment,
         clearCart,
         openCart,

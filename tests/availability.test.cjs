@@ -46,7 +46,7 @@ test('el carrito conserva y detecta productos no disponibles', () => {
 test('WhatsApp rechaza productos retirados o suspendidos', () => {
   const order = {
     items: [{ cartId: 'old', dishId: 'camu-camu-vaso', name: 'Camu Camu', price: 5, quantity: 1, options: [], note: '' }],
-    orderType: 'dineIn', address: '', tableNumber: '1', customerName: '', comment: '',
+    orderType: 'dineIn', address: '', tableNumber: '1', customerName: '', customerPhone: '', comment: '',
   };
   assert.throws(() => buildWhatsAppMessage(order), /no disponibles/);
   order.items[0].dishId = frappeId;

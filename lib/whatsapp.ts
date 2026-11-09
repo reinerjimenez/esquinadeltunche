@@ -1,5 +1,10 @@
 import { config } from "../data/config";
+import { menu } from "../data/menu";
 import { getUnavailableCartItems } from "./availability";
+
+const packagingByDishId = new Map(
+  menu.flatMap((category) => category.dishes.map((dish) => [dish.id, dish.requiresTakeawayPackaging !== false] as const))
+);
 
 export type OrderType = "takeaway" | "dineIn";
 
@@ -25,13 +30,16 @@ export type CartOrder = {
   address: string;
   tableNumber: string;
   customerName: string;
+  customerPhone: string;
   comment: string;
 };
 
 export function calculateOrderTotals(order: Pick<CartOrder, "items" | "orderType">) {
   const itemCount = order.items.reduce((count, item) => count + item.quantity, 0);
   const subtotal = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const taperCount = order.orderType === "takeaway" ? itemCount : 0;
+  const taperCount = order.orderType === "takeaway"
+    ? order.items.reduce((count, item) => count + (packagingByDishId.get(item.dishId) === false ? 0 : item.quantity), 0)
+    : 0;
   const taperTotal = taperCount * config.taperUnitPrice;
   return { itemCount, subtotal, taperCount, taperTotal, total: subtotal + taperTotal };
 }
@@ -40,6 +48,14 @@ export function getPickupNameError(order: Pick<CartOrder, "orderType" | "custome
   return order.orderType === "takeaway" && !order.customerName.trim()
     ? "Ingresa el nombre de quien recogerá el pedido"
     : null;
+}
+
+export function getPickupPhoneError(order: Pick<CartOrder, "orderType" | "customerPhone">): string | null {
+  if (order.orderType !== "takeaway") return null;
+  const phone = order.customerPhone.replace(/[\s().-]/g, "");
+  return /^(?:\+51)?9\d{8}$/.test(phone)
+    ? null
+    : "Ingresa un número de celular peruano válido de 9 dígitos (puedes usar +51)";
 }
 
 function buildOptionsSuffix(options: CartItemOption[]): string {
@@ -55,6 +71,8 @@ export function buildWhatsAppMessage(order: CartOrder, now: Date = new Date()): 
   }
   const nameError = getPickupNameError(order);
   if (nameError) throw new Error(nameError);
+  const phoneError = getPickupPhoneError(order);
+  if (phoneError) throw new Error(phoneError);
   const totals = calculateOrderTotals(order);
   const lines: string[] = [];
 
@@ -72,6 +90,9 @@ export function buildWhatsAppMessage(order: CartOrder, now: Date = new Date()): 
 
   if (order.customerName.trim()) {
     lines.push(`*${order.orderType === "takeaway" ? "Cliente" : "Nombre"}:* ${order.customerName.trim()}`);
+  }
+  if (order.customerPhone.trim()) {
+    lines.push(`*Celular:* ${order.customerPhone.replace(/[\s().-]/g, "")}`);
   }
 
   lines.push("");

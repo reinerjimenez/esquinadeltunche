@@ -13,7 +13,7 @@ import {
   User,
 } from "lucide-react";
 import { useCart } from "@/lib/cart";
-import { buildWhatsAppMessage, getWhatsAppUrl, formatPrice, getPickupNameError } from "@/lib/whatsapp";
+import { buildWhatsAppMessage, getWhatsAppUrl, formatPrice, getPickupNameError, getPickupPhoneError } from "@/lib/whatsapp";
 import { config } from "@/data/config";
 import WhatsAppIcon from "@/components/WhatsAppIcon";
 import { trackEvent } from "@/lib/analytics";
@@ -31,6 +31,7 @@ export default function CartSheet() {
     setAddress,
     setTable,
     setName,
+    setPhone,
     setComment,
     clearCart,
     closeCart,
@@ -46,7 +47,7 @@ export default function CartSheet() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [showOptionalFields, setShowOptionalFields] = useState(
-    Boolean(state.customerName.trim() || state.comment.trim())
+    Boolean(state.customerName.trim() || state.customerPhone.trim() || state.comment.trim())
   );
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -92,6 +93,12 @@ export default function CartSheet() {
     if (nameError) {
       errs.customerName = nameError;
       if (!firstErrorElementId) firstErrorElementId = "cart-pickup-name";
+    }
+
+    const phoneError = getPickupPhoneError(state);
+    if (phoneError) {
+      errs.customerPhone = phoneError;
+      if (!firstErrorElementId) firstErrorElementId = "cart-pickup-phone";
     }
 
     if (state.orderType === "dineIn" && !state.tableNumber.trim()) {
@@ -406,7 +413,7 @@ export default function CartSheet() {
                       aria-checked={state.orderType === "dineIn"}
                       onClick={() => {
                         setOrderType("dineIn");
-                        setFieldErrors((err) => ({ ...err, orderType: "", customerName: "" }));
+                        setFieldErrors((err) => ({ ...err, orderType: "", customerName: "", customerPhone: "" }));
                       }}
                       className={`cart-order-type-card ${state.orderType === "dineIn" ? "is-selected" : ""
                         }`}
@@ -430,7 +437,7 @@ export default function CartSheet() {
                       aria-checked={state.orderType === "takeaway"}
                       onClick={() => {
                         setOrderType("takeaway");
-                        setFieldErrors((err) => ({ ...err, orderType: "", customerName: "" }));
+                        setFieldErrors((err) => ({ ...err, orderType: "", customerName: "", customerPhone: "" }));
                       }}
                       className={`cart-order-type-card ${state.orderType === "takeaway" ? "is-selected" : ""
                         }`}
@@ -544,6 +551,38 @@ export default function CartSheet() {
                     </div>
                   )}
 
+                  {state.orderType === "takeaway" && (
+                    <div className="cart-required-field">
+                      <label htmlFor="cart-pickup-phone" className="cart-label">
+                        <span>Número de celular *</span>
+                        <span className="cart-required-badge">Obligatorio</span>
+                      </label>
+                      <p id="cart-pickup-phone-help" className="text-tunche-muted text-xs mb-2">
+                        Necesitamos tu número para contactarte cuando tu pedido esté listo
+                      </p>
+                      <input
+                        id="cart-pickup-phone"
+                        type="tel"
+                        inputMode="tel"
+                        autoComplete="tel"
+                        value={state.customerPhone}
+                        onChange={(event) => {
+                          setPhone(event.target.value);
+                          setFieldErrors((errors) => ({ ...errors, customerPhone: "" }));
+                        }}
+                        className={`tunche-input ${fieldErrors.customerPhone ? "error" : ""}`}
+                        required
+                        aria-invalid={Boolean(fieldErrors.customerPhone)}
+                        aria-describedby={`cart-pickup-phone-help${fieldErrors.customerPhone ? " cart-pickup-phone-error" : ""}`}
+                      />
+                      {fieldErrors.customerPhone && (
+                        <p id="cart-pickup-phone-error" className="cart-error-msg" role="alert">
+                          {fieldErrors.customerPhone}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
                   {/* Secondary Optional Fields (Name & Comment) */}
                   <div className="cart-optional-section">
                     <button
@@ -554,7 +593,7 @@ export default function CartSheet() {
                     >
                       <span className="cart-optional-toggle-text">
                         <User size={16} aria-hidden="true" />
-                        <span>{state.orderType === "takeaway" ? "Comentarios" : "Nombre y comentarios"} <span className="text-tunche-muted text-xs font-normal">(opcional)</span></span>
+                        <span>{state.orderType === "takeaway" ? "Comentarios" : "Nombre, celular y comentarios"} <span className="text-tunche-muted text-xs font-normal">(opcional)</span></span>
                       </span>
                       <ChevronDown
                         size={16}
@@ -576,6 +615,21 @@ export default function CartSheet() {
                             placeholder="¿Cómo te llamas?"
                             value={state.customerName}
                             onChange={(e) => setName(e.target.value)}
+                            className="tunche-input"
+                          />
+                        </div>}
+
+                        {state.orderType !== "takeaway" && <div>
+                          <label htmlFor="cart-phone" className="cart-sublabel">
+                            Número de celular <span className="text-tunche-muted font-normal">(opcional)</span>
+                          </label>
+                          <input
+                            id="cart-phone"
+                            type="tel"
+                            inputMode="tel"
+                            autoComplete="tel"
+                            value={state.customerPhone}
+                            onChange={(event) => setPhone(event.target.value)}
                             className="tunche-input"
                           />
                         </div>}
@@ -657,6 +711,10 @@ export default function CartSheet() {
                       ) : getPickupNameError(state) ? (
                         <p className="cart-status-hint text-amber-300">
                           ⚠️ <strong>Falta completar:</strong> Ingresa el nombre de quien recogerá el pedido en el <strong>Paso 2</strong>.
+                        </p>
+                      ) : getPickupPhoneError(state) ? (
+                        <p className="cart-status-hint text-amber-300">
+                          ⚠️ <strong>Falta completar:</strong> Ingresa un número de celular peruano válido en el <strong>Paso 2</strong>.
                         </p>
                       ) : (
                         <p className="cart-status-hint text-emerald-400">

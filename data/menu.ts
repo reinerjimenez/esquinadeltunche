@@ -17,6 +17,7 @@ export type DishVariant = {
 export type Dish = {
   id: string;
   name: string;
+  requiresTakeawayPackaging?: boolean;
   description?: string;
   detail?: string;
   price: number | null;
@@ -908,18 +909,21 @@ export const menu: Category[] = [
       {
         id: "coca-cola-personal",
         name: "Coca-Cola personal",
+        requiresTakeawayPackaging: false,
         description: "Botella personal.",
         price: 5,
       },
       {
         id: "inca-kola-personal",
         name: "Inca Kola personal",
+        requiresTakeawayPackaging: false,
         description: "Botella personal.",
         price: 5,
       },
       {
         id: "agua-mineral",
         name: "Agua mineral",
+        requiresTakeawayPackaging: false,
         description: "Botella personal.",
         price: 4,
       },
