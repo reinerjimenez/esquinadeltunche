@@ -1,17 +1,17 @@
 # Graph Report - tunche-app  (2026-11-09)
 
 ## Corpus Check
-- 42 files · ~29,363 words
+- 42 files · ~29,681 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 27 file(s) not represented in the graph (top: .csv 24, (none) 1, .css 1)
 
 ## Summary
-- 416 nodes · 715 edges · 29 communities (24 shown, 5 thin omitted)
+- 418 nodes · 718 edges · 29 communities (24 shown, 5 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 10 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `0a1e04f0`
+- Built from commit: `70127269`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -25,7 +25,7 @@
 - compilerOptions
 - patch-readlink.cjs
 - design_system.py
-- layout.tsx
+- DishSheet.tsx
 - manifest.json
 - _search_csv
 - search.py
@@ -53,8 +53,8 @@
 4. `HomePage()` - 15 edges
 5. `formatPrice()` - 15 edges
 6. `react` - 15 edges
-7. `CartSheet()` - 14 edges
-8. `getDishAvailability()` - 14 edges
+7. `getDishAvailability()` - 14 edges
+8. `CartSheet()` - 13 edges
 9. `lucide-react` - 13 edges
 10. `LA ESQUINA DEL TUNCHE` - 12 edges
 
@@ -63,12 +63,12 @@
   README.md → components/DishImage.tsx
 - `RootLayout()` --calls--> `CartProvider()`  [EXTRACTED]
   app/layout.tsx → lib/cart.tsx
-- `HomePage()` --calls--> `CartSheet()`  [EXTRACTED]
-  app/page.tsx → components/CartSheet.tsx
-- `HomePage()` --calls--> `MapSection()`  [EXTRACTED]
-  app/page.tsx → components/MapSection.tsx
-- `CartSheet()` --calls--> `trackEvent()`  [EXTRACTED]
-  components/CartSheet.tsx → lib/analytics.ts
+- `HomePage()` --calls--> `DishSheet()`  [EXTRACTED]
+  app/page.tsx → components/DishSheet.tsx
+- `HomePage()` --calls--> `FeaturedCarousel()`  [EXTRACTED]
+  app/page.tsx → components/FeaturedCarousel.tsx
+- `HomePage()` --calls--> `MenuSection()`  [EXTRACTED]
+  app/page.tsx → components/MenuSection.tsx
 
 ## Import Cycles
 - None detected.
@@ -76,12 +76,12 @@
 ## Communities (29 total, 5 thin omitted)
 
 ### Community 0 - "page.tsx"
-Cohesion: 0.08
-Nodes (49): dishesById, featuredDishes, HomePage(), normalize(), searchableDishFields, CartButton(), CartButtonProps, CategoryNav() (+41 more)
+Cohesion: 0.11
+Nodes (35): dishesById, featuredDishes, HomePage(), normalize(), searchableDishFields, CartButton(), CartButtonProps, CartSheet() (+27 more)
 
 ### Community 1 - "package.json"
-Cohesion: 0.07
-Nodes (34): eslintConfig, dependencies, lucide-react@^1.56.0, next@16.4.0, react@19.3.0, react-dom@19.3.0, devDependencies, cross-env@^10.1.0 (+26 more)
+Cohesion: 0.05
+Nodes (43): cinzel, dmSans, metadata, RootLayout(), viewport, eslintConfig, nextConfig, dependencies (+35 more)
 
 ### Community 2 - "ui-ux-pro-max"
 Cohesion: 0.07
@@ -89,7 +89,7 @@ Nodes (29): Accessibility, Available Domains, Available Stacks, Common Rules for
 
 ### Community 3 - "cart.tsx"
 Cohesion: 0.09
-Nodes (37): CartSheet(), Availability, available, categoryByDishId, getDishAvailability(), getUnavailableCartItems(), CartAction, CartContext (+29 more)
+Nodes (32): menu, getUnavailableCartItems(), CartAction, CartContext, CartContextType, CartProvider(), cartReducer(), CartState (+24 more)
 
 ### Community 4 - "LA ESQUINA DEL TUNCHE"
 Cohesion: 0.09
@@ -111,9 +111,9 @@ Nodes (11): fs, fsp, _origReadlink, _origReadlinkSync, ARTIFACTS_DIR, runQA(), e
 Cohesion: 0.19
 Nodes (5): _detect_page_type(), format_master_md(), format_page_override_md(), _generate_intelligent_overrides(), persist_design_system()
 
-### Community 9 - "layout.tsx"
+### Community 9 - "DishSheet.tsx"
 Cohesion: 0.13
-Nodes (13): cinzel, dmSans, metadata, RootLayout(), viewport, MapSection(), config, Config (+5 more)
+Nodes (25): DishCard(), DishCardProps, DishPrice(), TAG_LABEL, categoryGradients, categoryIcons, DishImage(), DishImageProps (+17 more)
 
 ### Community 10 - "manifest.json"
 Cohesion: 0.17
@@ -177,17 +177,17 @@ Nodes (4): Debugging Animations, Frame-by-frame inspection, Slow motion testing,
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `DishImage()` connect `page.tsx` to `LA ESQUINA DEL TUNCHE`?**
+- **Why does `DishImage()` connect `DishSheet.tsx` to `LA ESQUINA DEL TUNCHE`?**
   _High betweenness centrality (0.047) - this node is a cross-community bridge._
 - **Should `page.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.08134920634920635 - nodes in this community are weakly interconnected._
-- **Why does `Imágenes` connect `LA ESQUINA DEL TUNCHE` to `page.tsx`?**
+  _Cohesion score 0.10629251700680271 - nodes in this community are weakly interconnected._
+- **Why does `Imágenes` connect `LA ESQUINA DEL TUNCHE` to `DishSheet.tsx`?**
   _High betweenness centrality (0.045) - this node is a cross-community bridge._
 - **Should `package.json` be split into smaller, more focused modules?**
-  _Cohesion score 0.07301587301587302 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05319148936170213 - nodes in this community are weakly interconnected._
 - **Should `ui-ux-pro-max` be split into smaller, more focused modules?**
   _Cohesion score 0.06666666666666667 - nodes in this community are weakly interconnected._
 - **Should `cart.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.08776595744680851 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.09146341463414634 - nodes in this community are weakly interconnected._
 - **Should `LA ESQUINA DEL TUNCHE` be split into smaller, more focused modules?**
   _Cohesion score 0.08695652173913043 - nodes in this community are weakly interconnected._

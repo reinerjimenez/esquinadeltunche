@@ -10,7 +10,7 @@ require.extensions['.ts'] = (module, filename) => {
   module._compile(output.outputText, filename);
 };
 
-const { calculateOrderTotals, getPickupNameError, getPickupPhoneError, buildWhatsAppMessage } = require('../lib/whatsapp.ts');
+const { calculateOrderTotals, getPickupNameError, getPickupPhoneError, getOrderFieldErrors, buildWhatsAppMessage } = require('../lib/whatsapp.ts');
 const { menu } = require('../data/menu.ts');
 const item = (dishId, price, quantity) => ({
   cartId: dishId, dishId, name: dishId, price, quantity, options: [], note: '',
@@ -103,4 +103,43 @@ test('WhatsApp rechaza datos de contacto inválidos y coincide con el total del 
   assert.match(message, new RegExp(`Táper \\(${totals.taperCount} × S/ 1\\.00\\): S/ ${totals.taperTotal.toFixed(2)}`));
   assert.match(message, new RegExp(`Total estimado: S/ ${totals.total.toFixed(2)}`));
   assert.doesNotMatch(buildWhatsAppMessage({ ...restored, orderType: 'dineIn', customerPhone: '' }), /Táper|Celular/);
+});
+
+test('recoger requiere solo nombre y cobra envases; comer aquí conserva mesa obligatoria', () => {
+  const items = [item('yuquitas-arrebozadas-del-tunche', 12, 2), item('agua-mineral', 4, 1)];
+  const pickup = { ...order(items, 'pickup'), address: 'No enviar esta dirección', customerPhone: '987654321', tableNumber: '99' };
+  assert.deepEqual(calculateOrderTotals(pickup), { itemCount: 3, subtotal: 28, taperCount: 2, taperTotal: 2, total: 30 });
+  assert.equal(getPickupNameError({ ...pickup, customerName: ' ' }), 'Ingresa el nombre de quien recogerá el pedido');
+  assert.deepEqual(getOrderFieldErrors({ ...pickup, customerName: ' ' }), { customerName: 'Ingresa el nombre de quien recogerá el pedido' });
+  assert.deepEqual(getOrderFieldErrors({ ...pickup, customerPhone: '', address: '' }), {});
+  assert.throws(() => buildWhatsAppMessage({ ...pickup, customerName: ' ' }), /Ingresa el nombre/);
+  const message = buildWhatsAppMessage(pickup);
+  assert.match(message, /Recoger en el restaurante/);
+  assert.match(message, /Persona que recogerá:\* María López/);
+  assert.match(message, /Táper \(2 × S\/ 1\.00\): S\/ 2\.00/);
+  assert.match(message, /Total estimado: S\/ 30\.00/);
+  assert.doesNotMatch(message, /No enviar esta dirección|987654321|Mesa|Dirección|Celular/);
+  assert.equal(calculateOrderTotals({ ...pickup, orderType: 'dineIn' }).total, 28);
+  assert.deepEqual(getOrderFieldErrors({ ...pickup, orderType: 'dineIn', customerName: '', tableNumber: '' }), { tableNumber: 'Escribe el número de tu mesa.' });
+  assert.deepEqual(getOrderFieldErrors({ ...pickup, orderType: 'dineIn', customerName: '' }), {});
+});
+
+test('delivery conserva sus tres campos obligatorios y no envía número de mesa', () => {
+  const delivery = order([item('tortilla-amazonica', 14, 1)]);
+  assert.deepEqual(getOrderFieldErrors(delivery), {});
+  assert.deepEqual(getOrderFieldErrors({ ...delivery, address: '' }), { address: 'Escribe tu dirección de entrega.' });
+  assert.match(getOrderFieldErrors({ ...delivery, customerPhone: '' }).customerPhone, /celular/i);
+  assert.throws(() => buildWhatsAppMessage({ ...delivery, address: '' }), /dirección/i);
+  const message = buildWhatsAppMessage({ ...delivery, tableNumber: 'Mesa secreta' });
+  assert.match(message, /Delivery|Para llevar/);
+  assert.match(message, /Dirección:\* Av\. Principal 1/);
+  assert.match(message, /Celular:\* 987654321/);
+  assert.doesNotMatch(message, /Mesa secreta/);
+});
+
+test('SushiBurger cambia solo de nombre visible y conserva su ID', () => {
+  const sushi = menu.find((category) => category.id === 'makis').dishes.find((dish) => dish.id === 'shishiburguer');
+  assert.equal(sushi.name, 'SushiBurger');
+  assert.equal(calculateOrderTotals(order([item(sushi.id, sushi.price, 1)], 'pickup')).taperTotal, 1);
+  assert.match(buildWhatsAppMessage(order([{ ...item(sushi.id, sushi.price, 1), name: 'Nombre anterior' }], 'pickup'), new Date(Date.UTC(2026, 10, 9, 23, 0))), /SushiBurger/);
 });

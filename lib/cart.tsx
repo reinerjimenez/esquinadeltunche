@@ -13,8 +13,8 @@ import {
   OrderType,
   generateCartId,
   calculateOrderTotals,
-  getPickupNameError,
-  getPickupPhoneError,
+  getOrderFieldErrors,
+  getCurrentDishName,
 } from "@/lib/whatsapp";
 import { getDishAvailability, getUnavailableCartItems } from "@/lib/availability";
 
@@ -32,6 +32,7 @@ const initialState: CartState = {
   tableNumber: "",
   customerName: "",
   customerPhone: "",
+  dineInPhone: "",
   comment: "",
   isCartOpen: false,
   toastMessage: null,
@@ -101,7 +102,9 @@ function cartReducer(state: CartState, action: CartAction): CartState {
     case "SET_NAME":
       return { ...state, customerName: action.customerName };
     case "SET_PHONE":
-      return { ...state, customerPhone: action.customerPhone };
+      return state.orderType === "dineIn"
+        ? { ...state, dineInPhone: action.customerPhone }
+        : { ...state, customerPhone: action.customerPhone };
     case "SET_COMMENT":
       return { ...state, comment: action.comment };
     case "CLEAR_CART":
@@ -158,12 +161,15 @@ function normalizePersistedCart(value: unknown): Partial<CartState> {
   const orderType = saved.orderType;
 
   return {
-    items: Array.isArray(saved.items) ? (saved.items as CartItem[]) : [],
-    orderType: orderType === "takeaway" || orderType === "dineIn" ? orderType : null,
+    items: Array.isArray(saved.items)
+      ? (saved.items as CartItem[]).map((item) => ({ ...item, name: getCurrentDishName(item.dishId, item.name) }))
+      : [],
+    orderType: orderType === "takeaway" || orderType === "dineIn" || orderType === "pickup" ? orderType : null,
     address: typeof saved.address === "string" ? saved.address : "",
     tableNumber: typeof saved.tableNumber === "string" ? saved.tableNumber : "",
     customerName: typeof saved.customerName === "string" ? saved.customerName : "",
     customerPhone: typeof saved.customerPhone === "string" ? saved.customerPhone : "",
+    dineInPhone: typeof saved.dineInPhone === "string" ? saved.dineInPhone : "",
     comment: typeof saved.comment === "string" ? saved.comment : "",
   };
 }
@@ -212,6 +218,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         tableNumber: state.tableNumber,
         customerName: state.customerName,
         customerPhone: state.customerPhone,
+        dineInPhone: state.dineInPhone,
         comment: state.comment,
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(persistable));
@@ -236,12 +243,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const isValid =
     totalItems > 0 &&
     getUnavailableCartItems(state.items, now).length === 0 &&
-    getPickupNameError(state) === null &&
-    getPickupPhoneError(state) === null &&
-    state.orderType !== null &&
-    (state.orderType === "dineIn"
-      ? state.tableNumber.trim() !== ""
-      : state.address.trim() !== "");
+    Object.keys(getOrderFieldErrors(state)).length === 0;
 
   const addItem = useCallback((item: Omit<CartItem, "cartId">) => {
     const availability = getDishAvailability(item.dishId);

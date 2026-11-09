@@ -239,7 +239,7 @@ export const menu: Category[] = [
       },
       {
         id: "shishiburguer",
-        name: "Shishiburguer",
+        name: "SushiBurger",
         description: "Relleno de palta, queso crema y trucha marinada.",
         detail: "Porción personal",
         price: 20,

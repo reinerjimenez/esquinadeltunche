@@ -2255,6 +2255,10 @@ textarea:focus-visible {
   margin-bottom: 14px;
 }
 
+#order-type-pickup {
+  grid-column: 1 / -1;
+}
+
 @media (max-width: 440px) {
   .cart-order-types {
     grid-template-columns: 1fr;

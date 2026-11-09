@@ -2,11 +2,13 @@ import { config } from "../data/config";
 import { menu } from "../data/menu";
 import { getUnavailableCartItems } from "./availability";
 
-const packagingByDishId = new Map(
-  menu.flatMap((category) => category.dishes.map((dish) => [dish.id, dish.requiresTakeawayPackaging !== false] as const))
-);
+const dishById = new Map(menu.flatMap((category) => category.dishes.map((dish) => [dish.id, dish] as const)));
 
-export type OrderType = "takeaway" | "dineIn";
+export function getCurrentDishName(dishId: string, fallback: string): string {
+  return dishById.get(dishId)?.name ?? fallback;
+}
+
+export type OrderType = "takeaway" | "dineIn" | "pickup";
 
 export type CartItemOption = {
   optionId: string;
@@ -31,21 +33,22 @@ export type CartOrder = {
   tableNumber: string;
   customerName: string;
   customerPhone: string;
+  dineInPhone?: string;
   comment: string;
 };
 
 export function calculateOrderTotals(order: Pick<CartOrder, "items" | "orderType">) {
   const itemCount = order.items.reduce((count, item) => count + item.quantity, 0);
   const subtotal = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const taperCount = order.orderType === "takeaway"
-    ? order.items.reduce((count, item) => count + (packagingByDishId.get(item.dishId) === false ? 0 : item.quantity), 0)
+  const taperCount = order.orderType === "takeaway" || order.orderType === "pickup"
+    ? order.items.reduce((count, item) => count + (dishById.get(item.dishId)?.requiresTakeawayPackaging === false ? 0 : item.quantity), 0)
     : 0;
   const taperTotal = taperCount * config.taperUnitPrice;
   return { itemCount, subtotal, taperCount, taperTotal, total: subtotal + taperTotal };
 }
 
 export function getPickupNameError(order: Pick<CartOrder, "orderType" | "customerName">): string | null {
-  return order.orderType === "takeaway" && !order.customerName.trim()
+  return (order.orderType === "takeaway" || order.orderType === "pickup") && !order.customerName.trim()
     ? "Ingresa el nombre de quien recogerá el pedido"
     : null;
 }
@@ -56,6 +59,18 @@ export function getPickupPhoneError(order: Pick<CartOrder, "orderType" | "custom
   return /^(?:\+51)?9\d{8}$/.test(phone)
     ? null
     : "Ingresa un número de celular peruano válido de 9 dígitos (puedes usar +51)";
+}
+
+export function getOrderFieldErrors(order: Pick<CartOrder, "orderType" | "address" | "tableNumber" | "customerName" | "customerPhone">) {
+  const errors: Partial<Record<"orderType" | "address" | "tableNumber" | "customerName" | "customerPhone", string>> = {};
+  if (!order.orderType) errors.orderType = "Elige cómo deseas recibir tu pedido.";
+  if (order.orderType === "takeaway" && !order.address.trim()) errors.address = "Escribe tu dirección de entrega.";
+  if (order.orderType === "dineIn" && !order.tableNumber.trim()) errors.tableNumber = "Escribe el número de tu mesa.";
+  const nameError = getPickupNameError(order);
+  if (nameError) errors.customerName = nameError;
+  const phoneError = getPickupPhoneError(order);
+  if (phoneError) errors.customerPhone = phoneError;
+  return errors;
 }
 
 function buildOptionsSuffix(options: CartItemOption[]): string {
@@ -69,10 +84,8 @@ export function buildWhatsAppMessage(order: CartOrder, now: Date = new Date()): 
   if (getUnavailableCartItems(order.items, now).length > 0) {
     throw new Error("El pedido contiene productos no disponibles");
   }
-  const nameError = getPickupNameError(order);
-  if (nameError) throw new Error(nameError);
-  const phoneError = getPickupPhoneError(order);
-  if (phoneError) throw new Error(phoneError);
+  const fieldError = Object.values(getOrderFieldErrors(order))[0];
+  if (fieldError) throw new Error(fieldError);
   const totals = calculateOrderTotals(order);
   const lines: string[] = [];
 
@@ -81,18 +94,22 @@ export function buildWhatsAppMessage(order: CartOrder, now: Date = new Date()): 
 
   // Order type
   if (order.orderType === "takeaway") {
-    lines.push(`*Tipo de pedido:* Para llevar`);
+    lines.push(`*Tipo de pedido:* Delivery`);
     lines.push(`*Dirección:* ${order.address}`);
+  } else if (order.orderType === "pickup") {
+    lines.push(`*Tipo de pedido:* Recoger en el restaurante`);
   } else if (order.orderType === "dineIn") {
     lines.push(`*Tipo de pedido:* Comer en el restaurante`);
     lines.push(`*Mesa:* ${order.tableNumber}`);
   }
 
   if (order.customerName.trim()) {
-    lines.push(`*${order.orderType === "takeaway" ? "Cliente" : "Nombre"}:* ${order.customerName.trim()}`);
+    lines.push(`*${order.orderType === "takeaway" ? "Cliente" : order.orderType === "pickup" ? "Persona que recogerá" : "Nombre"}:* ${order.customerName.trim()}`);
   }
-  if (order.customerPhone.trim()) {
+  if (order.orderType === "takeaway") {
     lines.push(`*Celular:* ${order.customerPhone.replace(/[\s().-]/g, "")}`);
+  } else if (order.orderType === "dineIn" && order.dineInPhone?.trim()) {
+    lines.push(`*Celular:* ${order.dineInPhone.replace(/[\s().-]/g, "")}`);
   }
 
   lines.push("");
@@ -102,7 +119,7 @@ export function buildWhatsAppMessage(order: CartOrder, now: Date = new Date()): 
     const subtotal = item.price * item.quantity;
     const optionsSuffix = buildOptionsSuffix(item.options);
     const optionsPart = optionsSuffix ? ` (${optionsSuffix})` : "";
-    lines.push(`${item.quantity} x ${item.name}${optionsPart} — ${config.currency} ${subtotal.toFixed(2)}`);
+    lines.push(`${item.quantity} x ${getCurrentDishName(item.dishId, item.name)}${optionsPart} — ${config.currency} ${subtotal.toFixed(2)}`);
     if (item.note.trim()) {
       lines.push(`   📝 Nota: ${item.note}`);
     }

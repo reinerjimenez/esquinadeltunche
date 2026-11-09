@@ -5,6 +5,7 @@ import {
   X,
   Trash2,
   ShoppingBag,
+  PackageCheck,
   UtensilsCrossed,
   FileText,
   Pencil,
@@ -13,7 +14,7 @@ import {
   User,
 } from "lucide-react";
 import { useCart } from "@/lib/cart";
-import { buildWhatsAppMessage, getWhatsAppUrl, formatPrice, getPickupNameError, getPickupPhoneError } from "@/lib/whatsapp";
+import { buildWhatsAppMessage, getWhatsAppUrl, formatPrice, getOrderFieldErrors } from "@/lib/whatsapp";
 import { config } from "@/data/config";
 import WhatsAppIcon from "@/components/WhatsAppIcon";
 import { trackEvent } from "@/lib/analytics";
@@ -47,7 +48,7 @@ export default function CartSheet() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [showOptionalFields, setShowOptionalFields] = useState(
-    Boolean(state.customerName.trim() || state.customerPhone.trim() || state.comment.trim())
+    Boolean(state.customerName.trim() || state.dineInPhone?.trim() || state.comment.trim())
   );
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -66,6 +67,7 @@ export default function CartSheet() {
   if (!state.isCartOpen) return null;
 
   const unavailableItems = getUnavailableCartItems(state.items, now);
+  const orderFieldErrors = getOrderFieldErrors(state);
 
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
@@ -79,31 +81,17 @@ export default function CartSheet() {
       firstErrorElementId = "cart-step-items";
     }
 
-    if (!state.orderType) {
-      errs.orderType = "Elige si deseas comer en el restaurante o para llevar.";
-      if (!firstErrorElementId) firstErrorElementId = "cart-step-order-type";
-    }
-
-    if (state.orderType === "takeaway" && !state.address.trim()) {
-      errs.address = "Escribe tu dirección de entrega.";
-      if (!firstErrorElementId) firstErrorElementId = "cart-address";
-    }
-
-    const nameError = getPickupNameError(state);
-    if (nameError) {
-      errs.customerName = nameError;
-      if (!firstErrorElementId) firstErrorElementId = "cart-pickup-name";
-    }
-
-    const phoneError = getPickupPhoneError(state);
-    if (phoneError) {
-      errs.customerPhone = phoneError;
-      if (!firstErrorElementId) firstErrorElementId = "cart-pickup-phone";
-    }
-
-    if (state.orderType === "dineIn" && !state.tableNumber.trim()) {
-      errs.tableNumber = "Escribe el número de tu mesa.";
-      if (!firstErrorElementId) firstErrorElementId = "cart-table";
+    const fieldIssues = getOrderFieldErrors(state);
+    Object.assign(errs, fieldIssues);
+    if (!firstErrorElementId) {
+      const fieldIds: Record<string, string> = {
+        orderType: "cart-step-order-type",
+        address: "cart-address",
+        customerName: "cart-pickup-name",
+        customerPhone: "cart-pickup-phone",
+        tableNumber: "cart-table",
+      };
+      firstErrorElementId = fieldIds[Object.keys(fieldIssues)[0]] ?? "";
     }
 
     setFieldErrors(errs);
@@ -397,11 +385,11 @@ export default function CartSheet() {
                     <span className="cart-step-number" aria-hidden="true">2</span>
                     <div>
                       <h3 id="step-2-title" className="cart-step-title">¿Cómo quieres tu pedido?</h3>
-                      <p className="cart-step-subtitle">Elige una de las dos opciones para despachar tu comida.</p>
+                      <p className="cart-step-subtitle">Elige cómo deseas recibir tu pedido.</p>
                     </div>
                   </header>
 
-                  {/* 2 Big Clear Cards */}
+                  {/* Modalidades de pedido */}
                   <div
                     className="cart-order-types"
                     role="radiogroup"
@@ -413,7 +401,7 @@ export default function CartSheet() {
                       aria-checked={state.orderType === "dineIn"}
                       onClick={() => {
                         setOrderType("dineIn");
-                        setFieldErrors((err) => ({ ...err, orderType: "", customerName: "", customerPhone: "" }));
+                        setFieldErrors({});
                       }}
                       className={`cart-order-type-card ${state.orderType === "dineIn" ? "is-selected" : ""
                         }`}
@@ -423,8 +411,8 @@ export default function CartSheet() {
                         <UtensilsCrossed size={20} aria-hidden="true" />
                       </div>
                       <div className="cart-order-type-copy">
-                        <span className="cart-order-type-name">Comer en el restaurante</span>
-                        <span className="cart-order-type-desc">Servido en mesa del local</span>
+                        <span className="cart-order-type-name">Comer aquí</span>
+                        <span className="cart-order-type-desc">Disfruta tu pedido en nuestro restaurante.</span>
                       </div>
                       <div className="cart-order-type-check" aria-hidden="true">
                         {state.orderType === "dineIn" && <Check size={18} strokeWidth={3} />}
@@ -437,7 +425,7 @@ export default function CartSheet() {
                       aria-checked={state.orderType === "takeaway"}
                       onClick={() => {
                         setOrderType("takeaway");
-                        setFieldErrors((err) => ({ ...err, orderType: "", customerName: "", customerPhone: "" }));
+                        setFieldErrors({});
                       }}
                       className={`cart-order-type-card ${state.orderType === "takeaway" ? "is-selected" : ""
                         }`}
@@ -447,11 +435,33 @@ export default function CartSheet() {
                         <ShoppingBag size={20} aria-hidden="true" />
                       </div>
                       <div className="cart-order-type-copy">
-                        <span className="cart-order-type-name">Para llevar</span>
-                        <span className="cart-order-type-desc">Delivery o retiro en tienda</span>
+                        <span className="cart-order-type-name">Delivery</span>
+                        <span className="cart-order-type-desc">Recibe tu pedido en tu domicilio.</span>
                       </div>
                       <div className="cart-order-type-check" aria-hidden="true">
                         {state.orderType === "takeaway" && <Check size={18} strokeWidth={3} />}
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={state.orderType === "pickup"}
+                      onClick={() => {
+                        setOrderType("pickup");
+                        setFieldErrors({});
+                      }}
+                      className={`cart-order-type-card ${state.orderType === "pickup" ? "is-selected" : ""}`}
+                      id="order-type-pickup"
+                    >
+                      <div className="cart-order-type-icon">
+                        <PackageCheck size={20} aria-hidden="true" />
+                      </div>
+                      <div className="cart-order-type-copy">
+                        <span className="cart-order-type-name">Recoger</span>
+                        <span className="cart-order-type-desc">Pide ahora y recógelo personalmente en el restaurante.</span>
+                      </div>
+                      <div className="cart-order-type-check" aria-hidden="true">
+                        {state.orderType === "pickup" && <Check size={18} strokeWidth={3} />}
                       </div>
                     </button>
                   </div>
@@ -521,10 +531,10 @@ export default function CartSheet() {
                     </div>
                   )}
 
-                  {state.orderType === "takeaway" && (
+                  {(state.orderType === "takeaway" || state.orderType === "pickup") && (
                     <div className="cart-required-field">
                       <label htmlFor="cart-pickup-name" className="cart-label">
-                        <span>Nombre de quien recogerá el pedido *</span>
+                        <span>{state.orderType === "pickup" ? "Persona que recogerá el pedido *" : "Nombre del cliente *"}</span>
                         <span className="cart-required-badge">Obligatorio</span>
                       </label>
                       <p id="cart-pickup-name-help" className="text-tunche-muted text-xs mb-2">
@@ -593,7 +603,7 @@ export default function CartSheet() {
                     >
                       <span className="cart-optional-toggle-text">
                         <User size={16} aria-hidden="true" />
-                        <span>{state.orderType === "takeaway" ? "Comentarios" : "Nombre, celular y comentarios"} <span className="text-tunche-muted text-xs font-normal">(opcional)</span></span>
+                        <span>{state.orderType === "dineIn" ? "Nombre, celular y comentarios" : "Comentarios"} <span className="text-tunche-muted text-xs font-normal">(opcional)</span></span>
                       </span>
                       <ChevronDown
                         size={16}
@@ -605,7 +615,7 @@ export default function CartSheet() {
 
                     {showOptionalFields && (
                       <div className="cart-optional-fields">
-                        {state.orderType !== "takeaway" && <div>
+                        {state.orderType === "dineIn" && <div>
                           <label htmlFor="cart-name" className="cart-sublabel">
                             Tu nombre <span className="text-tunche-muted font-normal">(opcional)</span>
                           </label>
@@ -619,7 +629,7 @@ export default function CartSheet() {
                           />
                         </div>}
 
-                        {state.orderType !== "takeaway" && <div>
+                        {state.orderType === "dineIn" && <div>
                           <label htmlFor="cart-phone" className="cart-sublabel">
                             Número de celular <span className="text-tunche-muted font-normal">(opcional)</span>
                           </label>
@@ -628,7 +638,7 @@ export default function CartSheet() {
                             type="tel"
                             inputMode="tel"
                             autoComplete="tel"
-                            value={state.customerPhone}
+                            value={state.dineInPhone ?? ""}
                             onChange={(event) => setPhone(event.target.value)}
                             className="tunche-input"
                           />
@@ -696,25 +706,9 @@ export default function CartSheet() {
                         <p className="cart-status-hint text-amber-300">
                           <strong>Productos no disponibles:</strong> retira los suspendidos o retirados. Los makis se habilitan en su horario.
                         </p>
-                      ) : !state.orderType ? (
+                      ) : Object.values(orderFieldErrors).length > 0 ? (
                         <p className="cart-status-hint text-amber-300">
-                          ⚠️ <strong>Falta completar:</strong> Elige en el <strong>Paso 2</strong> si comerás en el restaurante o es para llevar.
-                        </p>
-                      ) : state.orderType === "dineIn" && !state.tableNumber.trim() ? (
-                        <p className="cart-status-hint text-amber-300">
-                          ⚠️ <strong>Falta completar:</strong> Ingresa el número de tu mesa en el <strong>Paso 2</strong>.
-                        </p>
-                      ) : state.orderType === "takeaway" && !state.address.trim() ? (
-                        <p className="cart-status-hint text-amber-300">
-                          ⚠️ <strong>Falta completar:</strong> Ingresa la dirección de entrega en el <strong>Paso 2</strong>.
-                        </p>
-                      ) : getPickupNameError(state) ? (
-                        <p className="cart-status-hint text-amber-300">
-                          ⚠️ <strong>Falta completar:</strong> Ingresa el nombre de quien recogerá el pedido en el <strong>Paso 2</strong>.
-                        </p>
-                      ) : getPickupPhoneError(state) ? (
-                        <p className="cart-status-hint text-amber-300">
-                          ⚠️ <strong>Falta completar:</strong> Ingresa un número de celular peruano válido en el <strong>Paso 2</strong>.
+                          ⚠️ <strong>Falta completar:</strong> {Object.values(orderFieldErrors)[0]}
                         </p>
                       ) : (
                         <p className="cart-status-hint text-emerald-400">
