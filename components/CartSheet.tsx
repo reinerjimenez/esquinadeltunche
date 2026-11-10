@@ -265,15 +265,6 @@ export default function CartSheet() {
                               <span className="cart-item-subtotal">
                                 {formatPrice(item.price * item.quantity)}
                               </span>
-                              <button
-                                type="button"
-                                onClick={() => removeItem(item.cartId)}
-                                className="cart-item-remove-btn"
-                                aria-label={`Quitar ${item.name} del pedido`}
-                                title="Quitar plato"
-                              >
-                                <Trash2 size={16} aria-hidden="true" />
-                              </button>
                             </div>
                           </div>
 
@@ -300,6 +291,15 @@ export default function CartSheet() {
                                 +
                               </button>
                             </div>
+                            <button
+                              type="button"
+                              onClick={() => removeItem(item.cartId)}
+                              className="cart-item-remove-btn"
+                              aria-label={`Quitar ${item.name} del pedido`}
+                              title="Quitar plato"
+                            >
+                              <Trash2 size={16} aria-hidden="true" />
+                            </button>
                           </div>
 
                           {/* Secondary note for this dish: collapsed when empty */}
@@ -317,14 +317,23 @@ export default function CartSheet() {
 
                           {isEditingNote && (
                             <div className="cart-note-input-wrap">
-                              <input
-                                type="text"
+                              <textarea
                                 autoFocus
+                                rows={1}
                                 placeholder="Ej: sin cebolla, salsa aparte..."
                                 value={item.note}
                                 onChange={(e) => updateNote(item.cartId, e.target.value)}
+                                ref={(element) => {
+                                  if (element) {
+                                    element.style.height = "auto";
+                                    element.style.height = `${Math.min(element.scrollHeight, 120)}px`;
+                                  }
+                                }}
                                 onKeyDown={(e) => {
-                                  if (e.key === "Enter") setEditingNoteId(null);
+                                  if (e.key === "Enter" && !e.shiftKey) {
+                                    e.preventDefault();
+                                    setEditingNoteId(null);
+                                  }
                                 }}
                                 className="tunche-input cart-note-input"
                                 aria-label={`Indicación para ${item.name}`}

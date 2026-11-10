@@ -2058,24 +2058,24 @@ textarea:focus-visible {
 .cart-items-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .cart-item-card {
   background: var(--tunche-surface-2);
   border: 1px solid var(--tunche-border);
   border-radius: var(--radius-lg);
-  padding: 14px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .cart-item-main {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 12px;
+  gap: 8px;
 }
 
 .cart-item-info {
@@ -2088,6 +2088,7 @@ textarea:focus-visible {
   font-weight: 700;
   color: var(--tunche-cream);
   line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 .cart-item-option {
@@ -2107,7 +2108,6 @@ textarea:focus-visible {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 6px;
   flex-shrink: 0;
 }
 
@@ -2149,7 +2149,7 @@ textarea:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 12px;
+  padding: 6px 10px;
   font-size: 0.8125rem;
   font-weight: 600;
   color: var(--tunche-gold);
@@ -2177,15 +2177,22 @@ textarea:focus-visible {
 
 .cart-note-input {
   flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  max-height: 120px;
+  padding: 10px 12px;
+  line-height: 1.35;
+  resize: none;
+  overflow-y: auto;
 }
 
 .cart-note-done-btn {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  min-height: 46px;
-  height: 46px;
-  padding: 0 16px;
+  min-height: 44px;
+  height: 44px;
+  padding: 0 12px;
   border-radius: var(--radius-md);
   background: var(--tunche-gold);
   color: var(--tunche-dark);
@@ -2201,7 +2208,7 @@ textarea:focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 8px 12px;
+  padding: 6px 10px;
   background: rgba(201, 152, 58, 0.08);
   border: 1px solid rgba(201, 152, 58, 0.25);
   border-radius: var(--radius-md);
@@ -2219,9 +2226,7 @@ textarea:focus-visible {
 }
 
 .cart-note-text {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 .cart-note-badge-actions {
