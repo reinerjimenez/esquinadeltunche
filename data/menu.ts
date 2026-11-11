@@ -187,7 +187,7 @@ export const menu: Category[] = [
         description: "Palta, langostinos al panko y pesca del día, bañados en salsa acevichada de la casa.",
         detail: "Clásico · 10 cortes",
         price: 22,
-        image: "/img/makis/acevichado-tunche.webp",
+        image: "/img/makis/acevichado.webp",
       },
       {
         id: "furay-salvaje",
@@ -195,7 +195,7 @@ export const menu: Category[] = [
         description: "Palta, queso crema y trucha salmón, con salsa de tare o maracuyá salvaje.",
         detail: "Clásico · 10 cortes",
         price: 22,
-        image: "/img/makis/furay-salvaje.webp",
+        image: "/img/makis/furay_salvaje.webp",
       },
       {
         id: "el-malcriado",
@@ -203,7 +203,7 @@ export const menu: Category[] = [
         description: "Pollo crocante, palta y queso crema, en salsa de mango.",
         detail: "Clásico · 10 cortes",
         price: 22,
-        image: "/img/makis/el-malcriado.webp",
+        image: "/img/makis/malcriado_1.webp",
       },
       {
         id: "juane-travieso",
@@ -211,7 +211,7 @@ export const menu: Category[] = [
         description: "Arroz con mishquina, queso crema, pollo sazonado y palta, con mayonesa de sachaculantro y cocona.",
         detail: "Maki frito · 10 cortes",
         price: 22,
-        image: "/img/makis/juane-travieso.webp",
+        image: "/img/makis/travieso.webp",
       },
       {
         id: "tunche-loco",
@@ -219,7 +219,7 @@ export const menu: Category[] = [
         description: "Maduros fritos, queso crema, coronada con cecina en salsa spicy.",
         detail: "Clásico · 10 cortes",
         price: 26,
-        image: "/img/makis/tuncheloco.webp",
+        image: "/img/makis/tunche-loco.webp",
       },
       {
         id: "makibrasa",
@@ -227,7 +227,7 @@ export const menu: Category[] = [
         description: "Palta, queso crema, pollo tipo brasa con papas al hilo y salsa de pollería.",
         detail: "Clásico · 10 cortes",
         price: 22,
-        image: "/img/makis/makibrasa.webp",
+        image: "/img/makis/maki-brasa.webp",
       },
       {
         id: "el-fritunche",

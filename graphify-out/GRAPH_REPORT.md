@@ -1,7 +1,7 @@
-# Graph Report - tunche-app  (2026-11-09)
+# Graph Report - tunche-app  (2026-11-10)
 
 ## Corpus Check
-- 42 files · ~29,681 words
+- 42 files · ~29,701 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 27 file(s) not represented in the graph (top: .csv 24, (none) 1, .css 1)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `70127269`
+- Built from commit: `5a8094fa`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
